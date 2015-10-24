@@ -1,0 +1,44 @@
+{
+    "name": "php-http/plugin-client",
+    "description": "Plugin Client",
+    "license": "MIT",
+    "keywords": ["plugin", "http", "psr7"],
+    "homepage": "http://php-http.org",
+    "authors": [
+        {
+            "name": "Joel Wurtz",
+            "email": "joel.wurtz@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "php-http/httplug": "^1.0",
+        "php-http/httplug-async": "^0.1"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "^2.2",
+        "henrikbjorn/phpspec-code-coverage" : "^1.0",
+        "php-http/authentication": "^0.1@dev",
+        "php-http/cookie": "^0.1@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Http\\Client\\Plugin\\": "src/"
+        }
+    },
+    "suggest": {
+        "php-http/authentication": "Allow to use the AuthenticationPlugin",
+        "php-http/cookie": "Allow to use CookiePlugin"
+    },
+    "scripts": {
+        "test": "vendor/bin/phpspec run",
+        "test-ci": "vendor/bin/phpspec run -c phpspec.yml.ci"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1-dev"
+        }
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev"
+}
