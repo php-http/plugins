@@ -19,7 +19,8 @@
         "phpspec/phpspec": "^2.2",
         "henrikbjorn/phpspec-code-coverage" : "^1.0",
         "php-http/authentication": "^0.1@dev",
-        "php-http/cookie": "^0.1@dev"
+        "php-http/cookie": "^0.1@dev",
+        "symfony/stopwatch": "^2.3"
     },
     "autoload": {
         "psr-4": {
@@ -28,7 +29,8 @@
     },
     "suggest": {
         "php-http/authentication": "Allow to use the AuthenticationPlugin",
-        "php-http/cookie": "Allow to use CookiePlugin"
+        "php-http/cookie": "Allow to use CookiePlugin",
+        "symfony/stopwatch": "Allow to use the StopwatchPlugin"
     },
     "scripts": {
         "test": "vendor/bin/phpspec run",
