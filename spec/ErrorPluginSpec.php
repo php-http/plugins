@@ -2,7 +2,7 @@
 
 namespace spec\Http\Client\Plugin;
 
-use Http\Client\Plugin\FulfilledPromise;
+use Http\Client\Utils\Promise\FulfilledPromise;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
@@ -26,7 +26,7 @@ class ErrorPluginSpec extends ObjectBehavior
             }
         };
 
-        $this->handleRequest($request, $next, function () {})->shouldReturnAnInstanceOf('Http\Client\Plugin\RejectedPromise');
+        $this->handleRequest($request, $next, function () {})->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\RejectedPromise');
     }
 
     function it_returns_response(RequestInterface $request, ResponseInterface $response)
@@ -39,7 +39,7 @@ class ErrorPluginSpec extends ObjectBehavior
             }
         };
 
-        $this->handleRequest($request, $next, function () {})->shouldReturnAnInstanceOf('Http\Client\Plugin\FulfilledPromise');
+        $this->handleRequest($request, $next, function () {})->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\FulfilledPromise');
     }
 
     function it_throw_request_exception_on_custom_regex(RequestInterface $request, ResponseInterface $response)
@@ -52,6 +52,6 @@ class ErrorPluginSpec extends ObjectBehavior
             }
         };
 
-        $this->handleRequest($request, $next, function () {})->shouldReturnAnInstanceOf('Http\Client\Plugin\RejectedPromise');
+        $this->handleRequest($request, $next, function () {})->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\RejectedPromise');
     }
 }

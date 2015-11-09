@@ -6,6 +6,7 @@ use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
 use Http\Client\Plugin\Exception\RebootChainException;
 use Http\Client\Promise;
+use Http\Client\Utils\EmulateAsyncClient;
 use Psr\Http\Message\RequestInterface;
 
 class PluginClient implements HttpClient, HttpAsyncClient
@@ -31,7 +32,7 @@ class PluginClient implements HttpClient, HttpAsyncClient
         if ($client instanceof HttpAsyncClient) {
             $this->client = $client;
         } elseif ($client instanceof HttpClient) {
-            $this->client = new FakeAsyncClient($client);
+            $this->client = new EmulateAsyncClient($client);
         } else {
             throw new \RuntimeException("Client must be an instance of Http\\Client\\HttpClient or Http\\Client\\HttpAsyncClient");
         }

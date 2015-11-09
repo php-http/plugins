@@ -3,9 +3,8 @@
 namespace spec\Http\Client\Plugin;
 
 use Http\Client\Exception;
-use Http\Client\HttpClient;
-use Http\Client\Plugin\FulfilledPromise;
-use Http\Client\Plugin\RejectedPromise;
+use Http\Client\Utils\Promise\FulfilledPromise;
+use Http\Client\Utils\Promise\RejectedPromise;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
@@ -27,7 +26,7 @@ class RetryPluginSpec extends ObjectBehavior
             }
         };
 
-        $this->handleRequest($request, $next, function () {})->shouldReturnAnInstanceOf('Http\Client\Plugin\FulfilledPromise');
+        $this->handleRequest($request, $next, function () {})->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\FulfilledPromise');
     }
 
     function it_throws_exception_on_multiple_exceptions(RequestInterface $request)
@@ -50,7 +49,7 @@ class RetryPluginSpec extends ObjectBehavior
         };
 
         $promise = $this->handleRequest($request, $next, function () {});
-        $promise->shouldReturnAnInstanceOf('Http\Client\Plugin\RejectedPromise');
+        $promise->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\RejectedPromise');
         $promise->getException()->shouldReturn($exception2);
     }
 
@@ -73,7 +72,7 @@ class RetryPluginSpec extends ObjectBehavior
         };
 
         $promise = $this->handleRequest($request, $next, function () {});
-        $promise->shouldReturnAnInstanceOf('Http\Client\Plugin\FulfilledPromise');
+        $promise->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\FulfilledPromise');
         $promise->getResponse()->shouldReturn($response);
     }
 
@@ -95,7 +94,7 @@ class RetryPluginSpec extends ObjectBehavior
             }
         };
 
-        $this->handleRequest($request, $next, function () {})->shouldReturnAnInstanceOf('Http\Client\Plugin\FulfilledPromise');
-        $this->handleRequest($request, $next, function () {})->shouldReturnAnInstanceOf('Http\Client\Plugin\FulfilledPromise');
+        $this->handleRequest($request, $next, function () {})->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\FulfilledPromise');
+        $this->handleRequest($request, $next, function () {})->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\FulfilledPromise');
     }
 }
