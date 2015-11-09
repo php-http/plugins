@@ -3,8 +3,8 @@
 namespace spec\Http\Client\Plugin;
 
 use Http\Client\Exception\NetworkException;
-use Http\Client\Plugin\FulfilledPromise;
-use Http\Client\Plugin\RejectedPromise;
+use Http\Client\Utils\Promise\FulfilledPromise;
+use Http\Client\Utils\Promise\RejectedPromise;
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
