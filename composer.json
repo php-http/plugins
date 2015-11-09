@@ -16,7 +16,7 @@
         "php-http/httplug-async": "^0.1"
     },
     "require-dev": {
-        "phpspec/phpspec": "^2.2",
+        "phpspec/phpspec": "^2.4-alpha",
         "henrikbjorn/phpspec-code-coverage" : "^1.0",
         "php-http/authentication": "^0.1@dev",
         "php-http/cookie": "^0.1@dev",
