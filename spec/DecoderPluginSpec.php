@@ -2,126 +2,114 @@
 
 namespace spec\Http\Client\Plugin;
 
-use Http\Client\Exception\HttpException;
 use Http\Client\Utils\Promise\FulfilledPromise;
-use Http\Client\Utils\Promise\RejectedPromise;
-use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use PhpSpec\Exception\Example\SkippingException;
+use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
 
 class DecoderPluginSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
         $this->shouldHaveType('Http\Client\Plugin\DecoderPlugin');
+    }
+
+    function it_is_a_plugin()
+    {
         $this->shouldImplement('Http\Client\Plugin\Plugin');
     }
 
     function it_decodes(RequestInterface $request, ResponseInterface $response, StreamInterface $stream)
     {
+        if(defined('HHVM_VERSION')) {
+            throw new SkippingException('Skipping test on hhvm, as there is no chunk encoding on hhvm');
+        }
+
+        $request->withHeader('TE', ['gzip', 'deflate', 'compress', 'chunked'])->shouldBeCalled()->willReturn($request);
         $request->withHeader('Accept-Encoding', ['gzip', 'deflate', 'compress'])->shouldBeCalled()->willReturn($request);
         $next = function () use($response) {
             return new FulfilledPromise($response->getWrappedObject());
         };
 
-        $response->hasHeader('Transfer-Encoding')->shouldBeCalled()->willReturn(true);
-        $response->getHeader('Transfer-Encoding')->shouldBeCalled()->willReturn(['chunked']);
-        $response->getBody()->shouldBeCalled()->willReturn($stream);
-        $response->withBody(Argument::type('Http\Encoding\DechunkStream'))->shouldBeCalled()->willReturn($response);
-        $response->withHeader('Transfer-Encoding', [])->shouldBeCalled()->willReturn($response);
-        $response->hasHeader('Content-Encoding')->shouldBeCalled()->willReturn(false);
+        $response->hasHeader('Transfer-Encoding')->willReturn(true);
+        $response->getHeader('Transfer-Encoding')->willReturn(['chunked']);
+        $response->getBody()->willReturn($stream);
+        $response->withBody(Argument::type('Http\Encoding\DechunkStream'))->willReturn($response);
+        $response->withHeader('Transfer-Encoding', [])->willReturn($response);
+        $response->hasHeader('Content-Encoding')->willReturn(false);
 
-        $stream->isReadable()->shouldBeCalled()->willReturn(true);
-        $stream->isWritable()->shouldBeCalled()->willReturn(false);
-        $stream->eof()->shouldBeCalled()->willReturn(false);
-
-        $this->handleRequest($request, $next, function () {});
-    }
-
-    function it_decodes_in_exception_with_a_response(RequestInterface $request, ResponseInterface $response, StreamInterface $stream)
-    {
-        $exception = new HttpException('', $request->getWrappedObject(), $response->getWrappedObject());
-        $request->withHeader('Accept-Encoding', ['gzip', 'deflate', 'compress'])->shouldBeCalled()->willReturn($request);
-        $next = function () use($exception) {
-            return new RejectedPromise($exception);
-        };
-
-        $response->getStatusCode()->shouldBeCalled()->willReturn(404);
-        $response->hasHeader('Transfer-Encoding')->shouldBeCalled()->willReturn(true);
-        $response->getHeader('Transfer-Encoding')->shouldBeCalled()->willReturn(['chunked']);
-        $response->getBody()->shouldBeCalled()->willReturn($stream);
-        $response->withBody(Argument::type('Http\Encoding\DechunkStream'))->shouldBeCalled()->willReturn($response);
-        $response->withHeader('Transfer-Encoding', [])->shouldBeCalled()->willReturn($response);
-        $response->hasHeader('Content-Encoding')->shouldBeCalled()->willReturn(false);
-
-        $stream->isReadable()->shouldBeCalled()->willReturn(true);
-        $stream->isWritable()->shouldBeCalled()->willReturn(false);
-        $stream->eof()->shouldBeCalled()->willReturn(false);
+        $stream->isReadable()->willReturn(true);
+        $stream->isWritable()->willReturn(false);
+        $stream->eof()->willReturn(false);
 
         $this->handleRequest($request, $next, function () {});
     }
 
     function it_decodes_gzip(RequestInterface $request, ResponseInterface $response, StreamInterface $stream)
     {
+        $request->withHeader('TE', ['gzip', 'deflate', 'compress', 'chunked'])->shouldBeCalled()->willReturn($request);
         $request->withHeader('Accept-Encoding', ['gzip', 'deflate', 'compress'])->shouldBeCalled()->willReturn($request);
         $next = function () use($response) {
             return new FulfilledPromise($response->getWrappedObject());
         };
 
-        $response->hasHeader('Transfer-Encoding')->shouldBeCalled()->willReturn(false);
-        $response->hasHeader('Content-Encoding')->shouldBeCalled()->willReturn(true);
-        $response->getHeader('Content-Encoding')->shouldBeCalled()->willReturn(['gzip']);
-        $response->getBody()->shouldBeCalled()->willReturn($stream);
-        $response->withBody(Argument::type('Http\Encoding\GzipDecodeStream'))->shouldBeCalled()->willReturn($response);
-        $response->withHeader('Content-Encoding', [])->shouldBeCalled()->willReturn($response);
+        $response->hasHeader('Transfer-Encoding')->willReturn(false);
+        $response->hasHeader('Content-Encoding')->willReturn(true);
+        $response->getHeader('Content-Encoding')->willReturn(['gzip']);
+        $response->getBody()->willReturn($stream);
+        $response->withBody(Argument::type('Http\Encoding\GzipDecodeStream'))->willReturn($response);
+        $response->withHeader('Content-Encoding', [])->willReturn($response);
 
-        $stream->isReadable()->shouldBeCalled()->willReturn(true);
-        $stream->isWritable()->shouldBeCalled()->willReturn(false);
-        $stream->eof()->shouldBeCalled()->willReturn(false);
+        $stream->isReadable()->willReturn(true);
+        $stream->isWritable()->willReturn(false);
+        $stream->eof()->willReturn(false);
 
         $this->handleRequest($request, $next, function () {});
     }
 
     function it_decodes_deflate(RequestInterface $request, ResponseInterface $response, StreamInterface $stream)
     {
+        $request->withHeader('TE', ['gzip', 'deflate', 'compress', 'chunked'])->shouldBeCalled()->willReturn($request);
         $request->withHeader('Accept-Encoding', ['gzip', 'deflate', 'compress'])->shouldBeCalled()->willReturn($request);
         $next = function () use($response) {
             return new FulfilledPromise($response->getWrappedObject());
         };
 
-        $response->hasHeader('Transfer-Encoding')->shouldBeCalled()->willReturn(false);
-        $response->hasHeader('Content-Encoding')->shouldBeCalled()->willReturn(true);
-        $response->getHeader('Content-Encoding')->shouldBeCalled()->willReturn(['deflate']);
-        $response->getBody()->shouldBeCalled()->willReturn($stream);
-        $response->withBody(Argument::type('Http\Encoding\InflateStream'))->shouldBeCalled()->willReturn($response);
-        $response->withHeader('Content-Encoding', [])->shouldBeCalled()->willReturn($response);
+        $response->hasHeader('Transfer-Encoding')->willReturn(false);
+        $response->hasHeader('Content-Encoding')->willReturn(true);
+        $response->getHeader('Content-Encoding')->willReturn(['deflate']);
+        $response->getBody()->willReturn($stream);
+        $response->withBody(Argument::type('Http\Encoding\InflateStream'))->willReturn($response);
+        $response->withHeader('Content-Encoding', [])->willReturn($response);
 
-        $stream->isReadable()->shouldBeCalled()->willReturn(true);
-        $stream->isWritable()->shouldBeCalled()->willReturn(false);
-        $stream->eof()->shouldBeCalled()->willReturn(false);
+        $stream->isReadable()->willReturn(true);
+        $stream->isWritable()->willReturn(false);
+        $stream->eof()->willReturn(false);
 
         $this->handleRequest($request, $next, function () {});
     }
 
     function it_decodes_inflate(RequestInterface $request, ResponseInterface $response, StreamInterface $stream)
     {
+        $request->withHeader('TE', ['gzip', 'deflate', 'compress', 'chunked'])->shouldBeCalled()->willReturn($request);
         $request->withHeader('Accept-Encoding', ['gzip', 'deflate', 'compress'])->shouldBeCalled()->willReturn($request);
         $next = function () use($response) {
             return new FulfilledPromise($response->getWrappedObject());
         };
 
-        $response->hasHeader('Transfer-Encoding')->shouldBeCalled()->willReturn(false);
-        $response->hasHeader('Content-Encoding')->shouldBeCalled()->willReturn(true);
-        $response->getHeader('Content-Encoding')->shouldBeCalled()->willReturn(['compress']);
-        $response->getBody()->shouldBeCalled()->willReturn($stream);
-        $response->withBody(Argument::type('Http\Encoding\DecompressStream'))->shouldBeCalled()->willReturn($response);
-        $response->withHeader('Content-Encoding', [])->shouldBeCalled()->willReturn($response);
+        $response->hasHeader('Transfer-Encoding')->willReturn(false);
+        $response->hasHeader('Content-Encoding')->willReturn(true);
+        $response->getHeader('Content-Encoding')->willReturn(['compress']);
+        $response->getBody()->willReturn($stream);
+        $response->withBody(Argument::type('Http\Encoding\DecompressStream'))->willReturn($response);
+        $response->withHeader('Content-Encoding', [])->willReturn($response);
 
-        $stream->isReadable()->shouldBeCalled()->willReturn(true);
-        $stream->isWritable()->shouldBeCalled()->willReturn(false);
-        $stream->eof()->shouldBeCalled()->willReturn(false);
+        $stream->isReadable()->willReturn(true);
+        $stream->isWritable()->willReturn(false);
+        $stream->eof()->willReturn(false);
 
         $this->handleRequest($request, $next, function () {});
     }
@@ -130,12 +118,13 @@ class DecoderPluginSpec extends ObjectBehavior
     {
         $this->beConstructedWith(false);
 
+        $request->withHeader('TE', ['gzip', 'deflate', 'compress', 'chunked'])->shouldBeCalled()->willReturn($request);
         $request->withHeader('Accept-Encoding', ['gzip', 'deflate', 'compress'])->shouldNotBeCalled();
         $next = function () use($response) {
             return new FulfilledPromise($response->getWrappedObject());
         };
 
-        $response->hasHeader('Transfer-Encoding')->shouldBeCalled()->willReturn(false);
+        $response->hasHeader('Transfer-Encoding')->willReturn(false);
         $response->hasHeader('Content-Encoding')->shouldNotBeCalled();
 
         $this->handleRequest($request, $next, function () {});

@@ -25,6 +25,11 @@ class DecoderPlugin implements Plugin
      */
     private $useContentEncoding;
 
+    /**
+     * @param bool $useContentEncoding Whether this plugin decode stream with value in the Content-Encoding header (default to true).
+     *
+     * If set to false only the Transfer-Encoding header will be used.
+     */
     public function __construct($useContentEncoding = true)
     {
         $this->useContentEncoding = $useContentEncoding;
@@ -35,19 +40,14 @@ class DecoderPlugin implements Plugin
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {
+        $request = $request->withHeader('TE', ['gzip', 'deflate', 'compress', 'chunked']);
+
         if ($this->useContentEncoding) {
             $request = $request->withHeader('Accept-Encoding', ['gzip', 'deflate', 'compress']);
         }
 
         return $next($request)->then(function (ResponseInterface $response) {
             return $this->decodeResponse($response);
-        }, function (Exception $exception) use($request) {
-            if ($exception instanceof Exception\HttpException) {
-                $response  = $this->decodeResponse($exception->getResponse());
-                $exception = new Exception\HttpException($exception->getMessage(), $request, $response, $exception);
-            }
-
-            throw $exception;
         });
     }
 
@@ -58,29 +58,29 @@ class DecoderPlugin implements Plugin
      *
      * @return ResponseInterface New response decoded
      */
-    protected function decodeResponse(ResponseInterface $response)
+    private function decodeResponse(ResponseInterface $response)
     {
-        if ($response->hasHeader('Transfer-Encoding')) {
-            $encodings    = $response->getHeader('Transfer-Encoding');
-            $newEncodings = [];
+        $response = $this->decodeOnEncodingHeader('Transfer-Encoding', $response);
 
-            while ($encoding = array_pop($encodings)) {
-                $stream = $this->decorateStream($encoding, $response->getBody());
-
-                if (false === $stream) {
-                    array_unshift($newEncodings, $encoding);
-
-                    continue;
-                }
-
-                $response = $response->withBody($stream);
-            }
-
-            $response = $response->withHeader('Transfer-Encoding', $newEncodings);
+        if ($this->useContentEncoding) {
+            $response = $this->decodeOnEncodingHeader('Content-Encoding', $response);
         }
 
-        if ($this->useContentEncoding && $response->hasHeader('Content-Encoding')) {
-            $encodings    = $response->getHeader('Content-Encoding');
+        return $response;
+    }
+
+    /**
+     * Decode a response on a specific header (content encoding or transfer encoding mainly)
+     *
+     * @param string            $headerName Name of the header
+     * @param ResponseInterface $response   Response
+     *
+     * @return ResponseInterface A new instance of the response decoded
+     */
+    private function decodeOnEncodingHeader($headerName, ResponseInterface $response)
+    {
+        if ($response->hasHeader($headerName)) {
+            $encodings    = $response->getHeader($headerName);
             $newEncodings = [];
 
             while ($encoding = array_pop($encodings)) {
@@ -95,7 +95,7 @@ class DecoderPlugin implements Plugin
                 $response = $response->withBody($stream);
             }
 
-            $response = $response->withHeader('Content-Encoding', $newEncodings);
+            $response = $response->withHeader($headerName, $newEncodings);
         }
 
         return $response;
@@ -109,7 +109,7 @@ class DecoderPlugin implements Plugin
      *
      * @return StreamInterface|false A new stream interface or false if encoding is not supported
      */
-    protected function decorateStream($encoding, StreamInterface $stream)
+    private function decorateStream($encoding, StreamInterface $stream)
     {
         if (strtolower($encoding) == 'chunked') {
             return new DechunkStream($stream);
