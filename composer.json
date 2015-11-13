@@ -21,7 +21,8 @@
         "php-http/authentication": "^0.1@dev",
         "php-http/cookie": "^0.1@dev",
         "symfony/stopwatch": "^2.3",
-        "psr/log": "^1.0"
+        "psr/log": "^1.0",
+        "php-http/encoding": "^0.1@dev"
     },
     "autoload": {
         "psr-4": {
@@ -32,7 +33,8 @@
         "php-http/authentication": "Allow to use the AuthenticationPlugin",
         "php-http/cookie": "Allow to use CookiePlugin",
         "symfony/stopwatch": "Allow to use the StopwatchPlugin",
-        "psr/log-implementation": "Allow to use the LoggerPlugin"
+        "psr/log-implementation": "Allow to use the LoggerPlugin",
+        "php-http/encoding": "Allow to use the Decoder and Encoder plugin"
     },
     "scripts": {
         "test": "vendor/bin/phpspec run",
