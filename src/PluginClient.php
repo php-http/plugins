@@ -9,39 +9,48 @@ use Http\Client\Promise;
 use Http\Client\Utils\EmulateAsyncClient;
 use Psr\Http\Message\RequestInterface;
 
+/**
+ * The client managing plugins and providing a decorator around HTTP Clients.
+ *
+ * @author Joel Wurtz <joel.wurtz@gmail.com>
+ */
 class PluginClient implements HttpClient, HttpAsyncClient
 {
     /**
-     * @var HttpAsyncClient A http async client
+     * An HTTP async client
+     *
+     * @var HttpAsyncClient
      */
     protected $client;
 
     /**
-     * @var Plugin[] The plugin chain
+     * The plugin chain
+     *
+     * @var Plugin[]
      */
     protected $plugins;
 
     /**
-     * @param HttpClient|HttpAsyncClient $client  A http client (async or not)
-     * @param Plugin[]                   $plugins A list of plugins (middleware) to apply
+     * @param HttpClient|HttpAsyncClient $client
+     * @param Plugin[]                   $plugins
      *
      * @throws \RuntimeException if client is not an instance of HttpClient or HttpAsyncClient
      */
-    public function __construct($client, array $plugins = array())
+    public function __construct($client, array $plugins = [])
     {
         if ($client instanceof HttpAsyncClient) {
             $this->client = $client;
         } elseif ($client instanceof HttpClient) {
             $this->client = new EmulateAsyncClient($client);
         } else {
-            throw new \RuntimeException("Client must be an instance of Http\\Client\\HttpClient or Http\\Client\\HttpAsyncClient");
+            throw new \RuntimeException('Client must be an instance of Http\\Client\\HttpClient or Http\\Client\\HttpAsyncClient');
         }
 
         $this->plugins = $plugins;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function sendRequest(RequestInterface $request)
     {
@@ -56,7 +65,7 @@ class PluginClient implements HttpClient, HttpAsyncClient
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function sendAsyncRequest(RequestInterface $request)
     {
@@ -72,7 +81,7 @@ class PluginClient implements HttpClient, HttpAsyncClient
      */
     private function createPluginChain($pluginList)
     {
-        $client       = $this->client;
+        $client = $this->client;
         $lastCallable = function (RequestInterface $request) use($client) {
             return $client->sendAsyncRequest($request);
         };

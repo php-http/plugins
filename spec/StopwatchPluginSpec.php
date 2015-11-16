@@ -5,27 +5,32 @@ namespace spec\Http\Client\Plugin;
 use Http\Client\Exception\NetworkException;
 use Http\Client\Utils\Promise\FulfilledPromise;
 use Http\Client\Utils\Promise\RejectedPromise;
-use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
+use PhpSpec\ObjectBehavior;
 
 class StopwatchPluginSpec extends ObjectBehavior
 {
+    function let(Stopwatch $stopwatch)
+    {
+        $this->beConstructedWith($stopwatch);
+    }
+
     function it_is_initializable(Stopwatch $stopwatch)
     {
-        $this->beAnInstanceOf('Http\Client\Plugin\StopwatchPlugin', [$stopwatch]);
+        $this->shouldHaveType('Http\Client\Plugin\StopwatchPlugin');
+    }
+
+    function it_is_a_plugin()
+    {
         $this->shouldImplement('Http\Client\Plugin\Plugin');
     }
 
-    function it_records_event(Stopwatch $stopwatch, RequestInterface $request, UriInterface $uri, ResponseInterface $response)
+    function it_records_event(Stopwatch $stopwatch, RequestInterface $request, ResponseInterface $response)
     {
-        $this->beConstructedWith($stopwatch);
-
-        $request->getMethod()->shouldBeCalled()->willReturn('GET');
-        $request->getUri()->shouldBeCalled()->willReturn($uri);
-        $uri->__toString()->shouldBeCalled()->willReturn('/');
+        $request->getMethod()->willReturn('GET');
+        $request->getRequestTarget()->willReturn('/');
 
         $stopwatch->start('GET /', 'php_http.request')->shouldBeCalled();
         $stopwatch->stop('GET /', 'php_http.request')->shouldBeCalled();
@@ -37,13 +42,10 @@ class StopwatchPluginSpec extends ObjectBehavior
         $this->handleRequest($request, $next, function () {});
     }
 
-    function it_records_event_on_error(Stopwatch $stopwatch, RequestInterface $request, UriInterface $uri)
+    function it_records_event_on_error(Stopwatch $stopwatch, RequestInterface $request)
     {
-        $this->beConstructedWith($stopwatch);
-
-        $request->getMethod()->shouldBeCalled()->willReturn('GET');
-        $request->getUri()->shouldBeCalled()->willReturn($uri);
-        $uri->__toString()->shouldBeCalled()->willReturn('/');
+        $request->getMethod()->willReturn('GET');
+        $request->getRequestTarget()->willReturn('/');
 
         $stopwatch->start('GET /', 'php_http.request')->shouldBeCalled();
         $stopwatch->stop('GET /', 'php_http.request')->shouldBeCalled();

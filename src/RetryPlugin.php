@@ -9,30 +9,38 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Retry the request if it has somehow failed
- * By default will retry only one time
+ * Retry the request if it has somehow failed.
+ *
+ * By default will retry only one time.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
 class RetryPlugin implements Plugin
 {
-    /** @var int Number of retry before sending an exception */
+    /**
+     * Number of retry before sending an exception.
+     *
+     * @var int
+     */
     private $retry;
 
-    /** @var array Store the retry counter for each request */
-    private $retryStorage;
+    /**
+     * Store the retry counter for each request.
+     *
+     * @var array
+     */
+    private $retryStorage = [];
 
     /**
-     * @param int $retry  Number of retry before sending an exception
+     * @param int $retry Number of retry before sending an exception
      */
     public function __construct($retry = 1)
     {
-        $this->retry        = $retry;
-        $this->retryStorage = [];
+        $this->retry = $retry;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {

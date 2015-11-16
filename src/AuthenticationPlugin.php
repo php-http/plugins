@@ -6,7 +6,7 @@ use Http\Authentication\Authentication;
 use Psr\Http\Message\RequestInterface;
 
 /**
- * Send an authenticated request
+ * Send an authenticated request.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
@@ -17,13 +17,16 @@ class AuthenticationPlugin implements Plugin
      */
     private $authentication;
 
+    /**
+     * @param Authentication $authentication
+     */
     public function __construct(Authentication $authentication)
     {
         $this->authentication = $authentication;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {
@@ -31,5 +34,4 @@ class AuthenticationPlugin implements Plugin
 
         return $next($request);
     }
-
 }
