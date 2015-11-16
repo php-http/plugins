@@ -5,16 +5,20 @@ namespace spec\Http\Client\Plugin;
 use Http\Client\Exception;
 use Http\Client\Utils\Promise\FulfilledPromise;
 use Http\Client\Utils\Promise\RejectedPromise;
-use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
 
 class RetryPluginSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->beAnInstanceOf('Http\Client\Plugin\ErrorPlugin');
+        $this->shouldHaveType('Http\Client\Plugin\RetryPlugin');
+    }
+
+    function it_is_a_plugin()
+    {
         $this->shouldImplement('Http\Client\Plugin\Plugin');
     }
 
@@ -31,8 +35,8 @@ class RetryPluginSpec extends ObjectBehavior
 
     function it_throws_exception_on_multiple_exceptions(RequestInterface $request)
     {
-        $exception1 = new Exception\NetworkException("Exception 1", $request->getWrappedObject());
-        $exception2 = new Exception\NetworkException("Exception 2", $request->getWrappedObject());
+        $exception1 = new Exception\NetworkException('Exception 1', $request->getWrappedObject());
+        $exception2 = new Exception\NetworkException('Exception 2', $request->getWrappedObject());
 
         $count = 0;
         $next  = function (RequestInterface $receivedRequest) use($request, $exception1, $exception2, &$count) {
@@ -55,7 +59,7 @@ class RetryPluginSpec extends ObjectBehavior
 
     function it_returns_response_on_second_try(RequestInterface $request, ResponseInterface $response)
     {
-        $exception = new Exception\NetworkException("Exception 1", $request->getWrappedObject());
+        $exception = new Exception\NetworkException('Exception 1', $request->getWrappedObject());
 
         $count = 0;
         $next  = function (RequestInterface $receivedRequest) use($request, $exception, $response, &$count) {
@@ -78,7 +82,7 @@ class RetryPluginSpec extends ObjectBehavior
 
     function it_does_not_keep_history_of_old_failure(RequestInterface $request, ResponseInterface $response)
     {
-        $exception = new Exception\NetworkException("Exception 1", $request->getWrappedObject());
+        $exception = new Exception\NetworkException('Exception 1', $request->getWrappedObject());
 
         $count = 0;
         $next  = function (RequestInterface $receivedRequest) use($request, $exception, $response, &$count) {

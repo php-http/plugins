@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 /**
- * Know the duration of a request call with the stopwatch component
+ * Measure the duration of a request call with the stopwatch component.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
@@ -17,10 +17,13 @@ class StopwatchPlugin implements Plugin
     const CATEGORY = 'php_http.request';
 
     /**
-     * @var \Symfony\Component\Stopwatch\Stopwatch
+     * @var Stopwatch
      */
     private $stopwatch;
 
+    /**
+     * @param Stopwatch $stopwatch
+     */
     public function __construct(Stopwatch $stopwatch)
     {
         $this->stopwatch = $stopwatch;
@@ -46,7 +49,7 @@ class StopwatchPlugin implements Plugin
     }
 
     /**
-     * Generate the event name
+     * Generates the event name.
      *
      * @param RequestInterface $request
      *
@@ -54,6 +57,6 @@ class StopwatchPlugin implements Plugin
      */
     private function getStopwatchEventName(RequestInterface $request)
     {
-        return sprintf('%s %s', $request->getMethod(), $request->getUri()->__toString());
+        return sprintf('%s %s', $request->getMethod(), $request->getRequestTarget());
     }
 }

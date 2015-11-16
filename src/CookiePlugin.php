@@ -7,18 +7,30 @@ use Http\Cookie\CookieJar;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * Handle request cookies.
+ *
+ * @author Joel Wurtz <joel.wurtz@gmail.com>
+ */
 class CookiePlugin implements Plugin
 {
-    /** @var CookieJar Storage for cookies */
+    /**
+     * Cookie storage
+     *
+     * @var CookieJar
+     */
     private $cookieJar;
 
+    /**
+     * @param CookieJar $cookieJar
+     */
     public function __construct(CookieJar $cookieJar)
     {
         $this->cookieJar = $cookieJar;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {
@@ -68,7 +80,7 @@ class CookiePlugin implements Plugin
     }
 
     /**
-     * Create a cookie from a string
+     * Creates a cookie from a string.
      *
      * @param RequestInterface $request
      * @param $setCookie
@@ -126,7 +138,7 @@ class CookiePlugin implements Plugin
     }
 
     /**
-     * Separate key, value pair from cookie
+     * Separates key/value pair from cookie.
      *
      * @param $part
      *

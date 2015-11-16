@@ -5,16 +5,23 @@ namespace Http\Client\Plugin;
 use Http\Client\Exception\HttpException;
 use Http\Client\Plugin\Exception\CircularRedirectionException;
 use Http\Client\Plugin\Exception\MultipleRedirectionException;
-use Http\Client\Plugin\Exception\RebootChainException;
 use Http\Client\Promise;
+use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
+/**
+ * Follow redirections.
+ *
+ * @author Joel Wurtz <joel.wurtz@gmail.com>
+ */
 class RedirectPlugin implements Plugin
 {
     /**
-     * @var array Rule on how to redirect, change method for the new request
+     * Rule on how to redirect, change method for the new request.
+     *
+     * @var array
      */
     protected $redirectCodes = [
         300 => [
@@ -62,7 +69,9 @@ class RedirectPlugin implements Plugin
     ];
 
     /**
-     * @var boolean|array Determine how header should be preserved from old request
+     * Determine how header should be preserved from old request.
+     *
+     * @var bool|array
      *
      * true     will keep all previous headers (default value)
      * false    will ditch all previous headers
@@ -71,35 +80,43 @@ class RedirectPlugin implements Plugin
     protected $preserveHeader;
 
     /**
-     * @var array Store all previous redirect from 301 / 308 status code
+     * Store all previous redirect from 301 / 308 status code.
+     *
+     * @var array
      */
-    protected $redirectStorage = array();
+    protected $redirectStorage = [];
 
     /**
-     * @var bool Whether the location header must be directly used for a multiple redirection status code (300)
+     * Whether the location header must be directly used for a multiple redirection status code (300).
+     *
+     * @var bool
      */
     protected $useDefaultForMultiple;
 
     /**
-     * @var array Circular detection array
+     * @var array
      */
     protected $circularDetection = [];
 
+    /**
+     * @param bool $preserveHeader
+     * @param bool $useDefaultForMultiple
+     */
     public function __construct($preserveHeader = true, $useDefaultForMultiple = true)
     {
         $this->useDefaultForMultiple = $useDefaultForMultiple;
-        $this->preserveHeader        = false === $preserveHeader ? array() : $preserveHeader;
+        $this->preserveHeader = false === $preserveHeader ? [] : $preserveHeader;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {
         // Check in storage
-        if (array_key_exists((string)$request->getUri(), $this->redirectStorage)) {
-            $uri             = $this->redirectStorage[(string)$request->getUri()]['uri'];
-            $statusCode      = $this->redirectStorage[(string)$request->getUri()]['status'];
+        if (array_key_exists($request->getRequestTarget(), $this->redirectStorage)) {
+            $uri = $this->redirectStorage[$request->getRequestTarget()]['uri'];
+            $statusCode = $this->redirectStorage[$request->getRequestTarget()]['status'];
             $redirectRequest = $this->buildRedirectRequest($request, $uri, $statusCode);
 
             return $first($redirectRequest);
@@ -112,7 +129,7 @@ class RedirectPlugin implements Plugin
                 return $response;
             }
 
-            $uri             = $this->createUri($response, $request);
+            $uri = $this->createUri($response, $request);
             $redirectRequest = $this->buildRedirectRequest($request, $uri, $statusCode);
             $chainIdentifier = spl_object_hash((object)$first);
 
@@ -120,16 +137,16 @@ class RedirectPlugin implements Plugin
                 $this->circularDetection[$chainIdentifier] = [];
             }
 
-            $this->circularDetection[$chainIdentifier][] = (string)$request->getUri();
+            $this->circularDetection[$chainIdentifier][] = $request->getRequestTarget();
 
-            if (in_array((string)$redirectRequest->getUri(), $this->circularDetection[$chainIdentifier])) {
+            if (in_array($redirectRequest->getRequestTarget(), $this->circularDetection[$chainIdentifier])) {
                 throw new CircularRedirectionException('Circular redirection detected', $request, $response);
             }
 
             if ($this->redirectCodes[$statusCode]['permanent']) {
-                $this->redirectStorage[(string)$request->getUri()] = [
+                $this->redirectStorage[$request->getRequestTarget()] = [
                     'uri'    => $uri,
-                    'status' => $statusCode
+                    'status' => $statusCode,
                 ];
             }
 
@@ -146,13 +163,13 @@ class RedirectPlugin implements Plugin
     }
 
     /**
-     * Build the redirect request
+     * Builds the redirect request.
      *
      * @param RequestInterface $request     Original request
      * @param UriInterface     $uri         New uri
      * @param int              $statusCode  Status code from the redirect response
      *
-     * @return \Psr\Http\Message\MessageInterface|RequestInterface
+     * @return MessageInterface|RequestInterface
      */
     protected function buildRedirectRequest(RequestInterface $request, UriInterface $uri, $statusCode)
     {
@@ -176,13 +193,13 @@ class RedirectPlugin implements Plugin
     }
 
     /**
-     * Create a new Uri from the old request and the location header
+     * Creates a new Uri from the old request and the location header.
      *
      * @param ResponseInterface $response The redirect response
      * @param RequestInterface  $request  The original request
      *
-     * @throws \Http\Client\Exception\HttpException  If location header is not usable (missing or incorrect)
-     * @throws MultipleRedirectionException          If a 300 status code is received and default location cannot be resolved (doesn't use the location header or not present)
+     * @throws HttpException If location header is not usable (missing or incorrect)
+     * @throws MultipleRedirectionException If a 300 status code is received and default location cannot be resolved (doesn't use the location header or not present)
      *
      * @return UriInterface
      */
@@ -193,16 +210,17 @@ class RedirectPlugin implements Plugin
         }
 
         if (!$response->hasHeader('Location')) {
-            throw new HttpException("Redirect status code, but no location header present in the response", $request, $response);
+            throw new HttpException('Redirect status code, but no location header present in the response', $request, $response);
         }
 
-        $location       = $response->getHeaderLine('Location');
+        $location = $response->getHeaderLine('Location');
         $parsedLocation = parse_url($location);
-        $uri            = $request->getUri();
 
         if (false === $parsedLocation) {
-            throw new HttpException(sprintf("Location %s could not be parsed", $location), $request, $response);
+            throw new HttpException(sprintf('Location %s could not be parsed', $location), $request, $response);
         }
+
+        $uri = $request->getUri();
 
         if (array_key_exists('scheme', $parsedLocation)) {
             $uri = $uri->withScheme($parsedLocation['scheme']);
