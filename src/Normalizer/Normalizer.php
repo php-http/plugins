@@ -7,6 +7,10 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * Normalize a request or a response into a string or an array
+ *
+ * @author Joel Wurtz <joel.wurtz@gmail.com>
+ *
+ * @internal Should not be used outside of the logger plugin
  */
 class Normalizer
 {
@@ -16,8 +20,6 @@ class Normalizer
      * @param RequestInterface $request
      *
      * @return string
-     *
-     * @internal
      */
     public function normalizeRequestToString(RequestInterface $request)
     {
@@ -30,12 +32,9 @@ class Normalizer
      * @param ResponseInterface $response
      *
      * @return string
-     *
-     * @internal
      */
     public function normalizeResponseToString(ResponseInterface $response)
     {
         return sprintf("%s %s %s", $response->getStatusCode(), $response->getReasonPhrase(), $response->getProtocolVersion());
     }
 }
- 

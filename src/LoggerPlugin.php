@@ -16,19 +16,26 @@ use Psr\Log\LoggerInterface;
 class LoggerPlugin implements Plugin
 {
     /**
-     * @var LoggerInterface Logger to log request / response / exception for a http call
+     * Logger to log request / response / exception for a http call
+     *
+     * @var LoggerInterface
      */
     private $logger;
 
     /**
-     * @var Normalizer Normalize request and response to string or array
+     * Normalize request and response to string or array
+     *
+     * @var Normalizer
      */
     private $normalizer;
 
-    public function __construct(LoggerInterface $logger, Normalizer $normalizer)
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger     = $logger;
-        $this->normalizer = $normalizer;
+        $this->normalizer = new Normalizer();
     }
 
     /**

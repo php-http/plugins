@@ -15,9 +15,9 @@ use Psr\Log\LoggerInterface;
 
 class LoggerPluginSpec extends ObjectBehavior
 {
-    function let(LoggerInterface $logger, Normalizer $normalizer)
+    function let(LoggerInterface $logger)
     {
-        $this->beConstructedWith($logger, $normalizer);
+        $this->beConstructedWith($logger);
     }
 
     function it_is_initializable()
@@ -30,13 +30,18 @@ class LoggerPluginSpec extends ObjectBehavior
         $this->shouldImplement('Http\Client\Plugin\Plugin');
     }
 
-    function it_logs(LoggerInterface $logger, Normalizer $normalizer, RequestInterface $request, ResponseInterface $response)
+    function it_logs_request_and_response(LoggerInterface $logger, RequestInterface $request, ResponseInterface $response)
     {
         $logger->info('Emit request: "GET / 1.1"', ['request' => $request])->shouldBeCalled();
         $logger->info('Receive response: "200 Ok 1.1" for request: "GET / 1.1"', ['request' => $request, 'response' => $response])->shouldBeCalled();
 
-        $normalizer->normalizeRequestToString($request)->willReturn('GET / 1.1');
-        $normalizer->normalizeResponseToString($response)->willReturn('200 Ok 1.1');
+        $request->getMethod()->willReturn('GET');
+        $request->getRequestTarget()->willReturn('/');
+        $request->getProtocolVersion()->willReturn('1.1');
+
+        $response->getReasonPhrase()->willReturn('Ok');
+        $response->getProtocolVersion()->willReturn('1.1');
+        $response->getStatusCode()->willReturn('200');
 
         $next = function () use ($response) {
             return new FulfilledPromise($response->getWrappedObject());
@@ -45,14 +50,16 @@ class LoggerPluginSpec extends ObjectBehavior
         $this->handleRequest($request, $next, function () {});
     }
 
-    function it_logs_exception(LoggerInterface $logger, Normalizer $normalizer, RequestInterface $request)
+    function it_logs_exception(LoggerInterface $logger, RequestInterface $request)
     {
         $exception = new NetworkException('Cannot connect', $request->getWrappedObject());
 
         $logger->info('Emit request: "GET / 1.1"', ['request' => $request])->shouldBeCalled();
         $logger->error('Error: "Cannot connect" when emitting request: "GET / 1.1"', ['request' => $request, 'exception' => $exception])->shouldBeCalled();
 
-        $normalizer->normalizeRequestToString($request)->willReturn('GET / 1.1');
+        $request->getMethod()->willReturn('GET');
+        $request->getRequestTarget()->willReturn('/');
+        $request->getProtocolVersion()->willReturn('1.1');
 
         $next = function () use ($exception) {
             return new RejectedPromise($exception);
@@ -61,7 +68,7 @@ class LoggerPluginSpec extends ObjectBehavior
         $this->handleRequest($request, $next, function () {});
     }
 
-    function it_logs_response_within_exception(LoggerInterface $logger, Normalizer $normalizer, RequestInterface $request, ResponseInterface $response)
+    function it_logs_response_within_exception(LoggerInterface $logger, RequestInterface $request, ResponseInterface $response)
     {
         $exception = new HttpException('Forbidden', $request->getWrappedObject(), $response->getWrappedObject());
 
@@ -72,8 +79,13 @@ class LoggerPluginSpec extends ObjectBehavior
             'exception' => $exception
         ])->shouldBeCalled();
 
-        $normalizer->normalizeRequestToString($request)->willReturn('GET / 1.1');
-        $normalizer->normalizeResponseToString($response)->willReturn('403 Forbidden 1.1');
+        $request->getMethod()->willReturn('GET');
+        $request->getRequestTarget()->willReturn('/');
+        $request->getProtocolVersion()->willReturn('1.1');
+
+        $response->getReasonPhrase()->willReturn('Forbidden');
+        $response->getProtocolVersion()->willReturn('1.1');
+        $response->getStatusCode()->willReturn('403');
 
         $next = function () use ($exception) {
             return new RejectedPromise($exception);

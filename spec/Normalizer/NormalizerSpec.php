@@ -13,23 +13,23 @@ class NormalizerSpec extends ObjectBehavior
 {
     function it_is_initializable(LoggerInterface $logger)
     {
-        $this->beAnInstanceOf('Http\Client\Plugin\Normalizer\Normalizer');
+        $this->shouldHaveType('Http\Client\Plugin\Normalizer\Normalizer');
     }
 
     function it_normalize_request_to_string(RequestInterface $request)
     {
-        $request->getMethod()->shouldBeCalled()->willReturn('GET');
-        $request->getRequestTarget()->shouldBeCalled()->willReturn('/');
-        $request->getProtocolVersion()->shouldBeCalled()->willReturn('1.1');
+        $request->getMethod()->willReturn('GET');
+        $request->getRequestTarget()->willReturn('/');
+        $request->getProtocolVersion()->willReturn('1.1');
 
         $this->normalizeRequestToString($request)->shouldReturn('GET / 1.1');
     }
 
     function it_normalize_response_to_string(ResponseInterface $response)
     {
-        $response->getReasonPhrase()->shouldBeCalled()->willReturn('Ok');
-        $response->getProtocolVersion()->shouldBeCalled()->willReturn('1.1');
-        $response->getStatusCode()->shouldBeCalled()->willReturn('200');
+        $response->getReasonPhrase()->willReturn('Ok');
+        $response->getProtocolVersion()->willReturn('1.1');
+        $response->getStatusCode()->willReturn('200');
 
         $this->normalizeResponseToString($response)->shouldReturn('200 Ok 1.1');
     }
