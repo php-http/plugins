@@ -22,6 +22,7 @@
         "php-http/cookie": "^0.1@dev",
         "symfony/stopwatch": "^2.3",
         "psr/log": "^1.0",
+        "psr/cache": "1.0.0",
         "php-http/encoding": "^0.1@dev"
     },
     "autoload": {
@@ -34,6 +35,7 @@
         "php-http/cookie": "Allow to use CookiePlugin",
         "symfony/stopwatch": "Allow to use the StopwatchPlugin",
         "psr/log-implementation": "Allow to use the LoggerPlugin",
+        "psr/cache-implementation": "Allow to use the CachePlugin",
         "php-http/encoding": "Allow to use the Decoder and Encoder plugin"
     },
     "scripts": {
