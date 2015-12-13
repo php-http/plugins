@@ -4,9 +4,8 @@ namespace spec\Http\Client\Plugin;
 
 use Http\Client\Exception\HttpException;
 use Http\Client\Exception\NetworkException;
-use Http\Client\Plugin\Normalizer\Normalizer;
-use Http\Client\Utils\Promise\FulfilledPromise;
-use Http\Client\Utils\Promise\RejectedPromise;
+use Http\Client\Tools\Promise\FulfilledPromise;
+use Http\Client\Tools\Promise\RejectedPromise;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;

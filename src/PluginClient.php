@@ -4,9 +4,7 @@ namespace Http\Client\Plugin;
 
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
-use Http\Client\Plugin\Exception\RebootChainException;
-use Http\Client\Promise;
-use Http\Client\Utils\EmulateAsyncClient;
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -55,13 +53,8 @@ class PluginClient implements HttpClient, HttpAsyncClient
     public function sendRequest(RequestInterface $request)
     {
         $promise = $this->sendAsyncRequest($request);
-        $promise->wait();
 
-        if ($promise->getState() == Promise::REJECTED) {
-            throw $promise->getException();
-        }
-
-        return $promise->getResponse();
+        return $promise->wait();
     }
 
     /**

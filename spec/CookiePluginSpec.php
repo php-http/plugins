@@ -2,10 +2,10 @@
 
 namespace spec\Http\Client\Plugin;
 
-use Http\Client\Promise;
-use Http\Client\Utils\Promise\FulfilledPromise;
+use Http\Client\Tools\Promise\FulfilledPromise;
 use Http\Cookie\Cookie;
 use Http\Cookie\CookieJar;
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -155,7 +155,7 @@ class CookiePluginSpec extends ObjectBehavior
         $uri->getPath()->willReturn('/');
 
         $promise = $this->handleRequest($request, $next, function () {});
-        $promise->shouldHaveType('Http\Client\Promise');
-        $promise->getResponse()->shouldReturnAnInstanceOf('Psr\Http\Message\ResponseInterface');
+        $promise->shouldHaveType('Http\Promise\Promise');
+        $promise->wait()->shouldReturnAnInstanceOf('Psr\Http\Message\ResponseInterface');
     }
 }
