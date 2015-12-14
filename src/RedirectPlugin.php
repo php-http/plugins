@@ -5,7 +5,7 @@ namespace Http\Client\Plugin;
 use Http\Client\Exception\HttpException;
 use Http\Client\Plugin\Exception\CircularRedirectionException;
 use Http\Client\Plugin\Exception\MultipleRedirectionException;
-use Http\Client\Promise;
+use Http\Promise\Promise;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -152,13 +152,8 @@ class RedirectPlugin implements Plugin
 
             // Call redirect request in synchrone
             $redirectPromise = $first($redirectRequest);
-            $redirectPromise->wait();
 
-            if ($redirectPromise->getState() == Promise::REJECTED) {
-                throw $redirectPromise->getException();
-            }
-
-            return $redirectPromise->getResponse();
+            return $redirectPromise->wait();
         });
     }
 

@@ -3,7 +3,7 @@
 namespace spec\Http\Client\Plugin;
 
 use Http\Authentication\Authentication;
-use Http\Client\Promise;
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -28,7 +28,6 @@ class AuthenticationPluginSpec extends ObjectBehavior
     function it_sends_an_authenticated_request(Authentication $authentication, RequestInterface $notAuthedRequest, RequestInterface $authedRequest, Promise $promise)
     {
         $authentication->authenticate($notAuthedRequest)->willReturn($authedRequest);
-
 
         $next = function (RequestInterface $request) use($authedRequest, $promise) {
             if (Argument::is($authedRequest->getWrappedObject())->scoreArgument($request)) {

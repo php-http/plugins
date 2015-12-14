@@ -4,7 +4,7 @@ namespace Http\Client\Plugin;
 
 use Http\Client\Exception;
 use Http\Client\Plugin\Exception\RetryException;
-use Http\Client\Promise;
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -67,13 +67,8 @@ class RetryPlugin implements Plugin
 
             // Retry in synchrone
             $promise = $this->handleRequest($request, $next, $first);
-            $promise->wait();
 
-            if ($promise->getState() == Promise::REJECTED) {
-                throw $promise->getException();
-            }
-
-            return $promise->getResponse();
+            return $promise->wait();
         });
     }
 }

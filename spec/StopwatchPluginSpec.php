@@ -3,8 +3,8 @@
 namespace spec\Http\Client\Plugin;
 
 use Http\Client\Exception\NetworkException;
-use Http\Client\Utils\Promise\FulfilledPromise;
-use Http\Client\Utils\Promise\RejectedPromise;
+use Http\Client\Tools\Promise\FulfilledPromise;
+use Http\Client\Tools\Promise\RejectedPromise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Stopwatch\Stopwatch;

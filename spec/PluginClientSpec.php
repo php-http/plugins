@@ -4,7 +4,7 @@ namespace spec\Http\Client\Plugin;
 
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
-use Http\Client\Promise;
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use PhpSpec\ObjectBehavior;

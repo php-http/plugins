@@ -2,9 +2,9 @@
 
 namespace spec\Http\Client\Plugin;
 
-use Http\Client\Utils\Promise\FulfilledPromise;
 use Http\Client\Plugin\RedirectPlugin;
-use Http\Client\Promise;
+use Http\Client\Tools\Promise\FulfilledPromise;
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -59,13 +59,12 @@ class RedirectPluginSpec extends ObjectBehavior
             }
         };
 
-        $promise->wait()->shouldBeCalled();
         $promise->getState()->willReturn(Promise::FULFILLED);
-        $promise->getResponse()->willReturn($finalResponse);
+        $promise->wait()->shouldBeCalled()->willReturn($finalResponse);
 
         $finalPromise = $this->handleRequest($request, $next, $first);
-        $finalPromise->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\FulfilledPromise');
-        $finalPromise->getResponse()->shouldReturn($finalResponse);
+        $finalPromise->shouldReturnAnInstanceOf('Http\Client\Tools\Promise\FulfilledPromise');
+        $finalPromise->wait()->shouldReturn($finalResponse);
     }
 
     function it_use_storage_on_301(UriInterface $uriRedirect, RequestInterface $request, RequestInterface $modifiedRequest)
@@ -127,9 +126,8 @@ class RedirectPluginSpec extends ObjectBehavior
             }
         };
 
-        $promise->wait()->shouldBeCalled();
         $promise->getState()->willReturn(Promise::FULFILLED);
-        $promise->getResponse()->willReturn($finalResponse);
+        $promise->wait()->shouldBeCalled()->willReturn($finalResponse);
 
         $this->handleRequest($request, $next, $first);
         $this->hasStorage('/301-url')->shouldReturn(true);
@@ -175,9 +173,8 @@ class RedirectPluginSpec extends ObjectBehavior
             }
         };
 
-        $promise->wait()->shouldBeCalled();
         $promise->getState()->willReturn(Promise::FULFILLED);
-        $promise->getResponse()->willReturn($finalResponse);
+        $promise->wait()->shouldBeCalled()->willReturn($finalResponse);
 
         $this->handleRequest($request, $next, $first);
     }
@@ -195,8 +192,8 @@ class RedirectPluginSpec extends ObjectBehavior
         $responseRedirect->hasHeader('Location')->willReturn(false);
 
         $promise = $this->handleRequest($request, $next, function () {});
-        $promise->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\RejectedPromise');
-        $promise->getException()->shouldReturnAnInstanceOf('Http\Client\Exception\HttpException');
+        $promise->shouldReturnAnInstanceOf('Http\Client\Tools\Promise\RejectedPromise');
+        $promise->shouldThrow('Http\Client\Exception\HttpException')->duringWait();
     }
 
     function it_throws_http_exception_on_invalid_location(RequestInterface $request, ResponseInterface $responseRedirect)
@@ -214,8 +211,8 @@ class RedirectPluginSpec extends ObjectBehavior
         $responseRedirect->hasHeader('Location')->willReturn(true);
 
         $promise = $this->handleRequest($request, $next, function () {});
-        $promise->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\RejectedPromise');
-        $promise->getException()->shouldReturnAnInstanceOf('Http\Client\Exception\HttpException');
+        $promise->shouldReturnAnInstanceOf('Http\Client\Tools\Promise\RejectedPromise');
+        $promise->shouldThrow('Http\Client\Exception\HttpException')->duringWait();
     }
 
     function it_throw_multi_redirect_exception_on_300(RequestInterface $request, ResponseInterface $responseRedirect)
@@ -230,8 +227,8 @@ class RedirectPluginSpec extends ObjectBehavior
         $responseRedirect->getStatusCode()->willReturn('300');
 
         $promise = $this->handleRequest($request, $next, function () {});
-        $promise->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\RejectedPromise');
-        $promise->getException()->shouldReturnAnInstanceOf('Http\Client\Plugin\Exception\MultipleRedirectionException');
+        $promise->shouldReturnAnInstanceOf('Http\Client\Tools\Promise\RejectedPromise');
+        $promise->shouldThrow('Http\Client\Plugin\Exception\MultipleRedirectionException')->duringWait();
     }
 
     function it_throw_multi_redirect_exception_on_300_if_no_location(RequestInterface $request, ResponseInterface $responseRedirect)
@@ -246,8 +243,8 @@ class RedirectPluginSpec extends ObjectBehavior
         $responseRedirect->hasHeader('Location')->willReturn(false);
 
         $promise = $this->handleRequest($request, $next, function () {});
-        $promise->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\RejectedPromise');
-        $promise->getException()->shouldReturnAnInstanceOf('Http\Client\Plugin\Exception\MultipleRedirectionException');
+        $promise->shouldReturnAnInstanceOf('Http\Client\Tools\Promise\RejectedPromise');
+        $promise->shouldThrow('Http\Client\Plugin\Exception\MultipleRedirectionException')->duringWait();
     }
 
     function it_switch_method_for_302(
@@ -289,9 +286,8 @@ class RedirectPluginSpec extends ObjectBehavior
             }
         };
 
-        $promise->wait()->shouldBeCalled();
         $promise->getState()->willReturn(Promise::FULFILLED);
-        $promise->getResponse()->willReturn($finalResponse);
+        $promise->wait()->shouldBeCalled()->willReturn($finalResponse);
 
         $this->handleRequest($request, $next, $first);
     }
@@ -338,9 +334,8 @@ class RedirectPluginSpec extends ObjectBehavior
             }
         };
 
-        $promise->wait()->shouldBeCalled();
         $promise->getState()->willReturn(Promise::FULFILLED);
-        $promise->getResponse()->willReturn($finalResponse);
+        $promise->wait()->shouldBeCalled()->willReturn($finalResponse);
 
         $this->handleRequest($request, $next, $first);
     }
@@ -375,8 +370,8 @@ class RedirectPluginSpec extends ObjectBehavior
         };
 
         $promise = $this->handleRequest($request, $next, $first);
-        $promise->shouldReturnAnInstanceOf('Http\Client\Utils\Promise\RejectedPromise');
-        $promise->getException()->shouldReturnAnInstanceOf('Http\Client\Plugin\Exception\CircularRedirectionException');
+        $promise->shouldReturnAnInstanceOf('Http\Client\Tools\Promise\RejectedPromise');
+        $promise->shouldThrow('Http\Client\Plugin\Exception\CircularRedirectionException')->duringWait();
     }
 }
 
