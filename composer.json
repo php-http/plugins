@@ -1,6 +1,6 @@
 {
     "name": "php-http/plugins",
-    "description": "Plugins for Httplug",
+    "description": "Plugins for HTTPlug",
     "license": "MIT",
     "keywords": ["plugin", "http", "psr7"],
     "homepage": "http://php-http.org",

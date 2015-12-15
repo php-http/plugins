@@ -1,5 +1,5 @@
 suites:
-  plugin_suite:
-    namespace: Http\Client\Plugin
-    psr4_prefix: Http\Client\Plugin
+    plugin_suite:
+        namespace: Http\Client\Plugin
+        psr4_prefix: Http\Client\Plugin
 formatter.name: pretty
