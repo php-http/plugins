@@ -2,7 +2,6 @@
 
 namespace Http\Client\Plugin;
 
-use Http\Client\Exception;
 use Http\Encoding\DechunkStream;
 use Http\Encoding\DecompressStream;
 use Http\Encoding\GzipDecodeStream;
@@ -12,7 +11,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
 /**
- * Allow to decode response body with a chunk, deflate, compress or gzip encoding
+ * Allow to decode response body with a chunk, deflate, compress or gzip encoding.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
@@ -36,7 +35,7 @@ class DecoderPlugin implements Plugin
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {
@@ -52,7 +51,7 @@ class DecoderPlugin implements Plugin
     }
 
     /**
-     * Decode a response body given its Transfer-Encoding or Content-Encoding value
+     * Decode a response body given its Transfer-Encoding or Content-Encoding value.
      *
      * @param ResponseInterface $response Response to decode
      *
@@ -70,7 +69,7 @@ class DecoderPlugin implements Plugin
     }
 
     /**
-     * Decode a response on a specific header (content encoding or transfer encoding mainly)
+     * Decode a response on a specific header (content encoding or transfer encoding mainly).
      *
      * @param string            $headerName Name of the header
      * @param ResponseInterface $response   Response
@@ -80,7 +79,7 @@ class DecoderPlugin implements Plugin
     private function decodeOnEncodingHeader($headerName, ResponseInterface $response)
     {
         if ($response->hasHeader($headerName)) {
-            $encodings    = $response->getHeader($headerName);
+            $encodings = $response->getHeader($headerName);
             $newEncodings = [];
 
             while ($encoding = array_pop($encodings)) {
@@ -102,7 +101,7 @@ class DecoderPlugin implements Plugin
     }
 
     /**
-     * Decorate a stream given an encoding
+     * Decorate a stream given an encoding.
      *
      * @param string          $encoding
      * @param StreamInterface $stream

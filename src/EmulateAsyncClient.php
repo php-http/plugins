@@ -8,7 +8,7 @@ use Http\Client\Tools\HttpAsyncClientEmulator;
 use Http\Client\Tools\HttpClientDecorator;
 
 /**
- * Emulate an async client
+ * Emulate an async client.
  */
 class EmulateAsyncClient implements HttpClient, HttpAsyncClient
 {

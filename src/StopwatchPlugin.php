@@ -37,11 +37,11 @@ class StopwatchPlugin implements Plugin
         $eventName = $this->getStopwatchEventName($request);
         $this->stopwatch->start($eventName, self::CATEGORY);
 
-        return $next($request)->then(function (ResponseInterface $response) use($eventName) {
+        return $next($request)->then(function (ResponseInterface $response) use ($eventName) {
             $this->stopwatch->stop($eventName, self::CATEGORY);
 
             return $response;
-        }, function (Exception $exception) use($eventName) {
+        }, function (Exception $exception) use ($eventName) {
             $this->stopwatch->stop($eventName, self::CATEGORY);
 
             throw $exception;

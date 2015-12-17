@@ -3,8 +3,6 @@
 namespace Http\Client\Plugin;
 
 use Http\Client\Exception;
-use Http\Client\Plugin\Exception\RetryException;
-use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -44,9 +42,9 @@ class RetryPlugin implements Plugin
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {
-        $chainIdentifier = spl_object_hash((object)$first);
+        $chainIdentifier = spl_object_hash((object) $first);
 
-        return $next($request)->then(function (ResponseInterface $response) use($request, $chainIdentifier) {
+        return $next($request)->then(function (ResponseInterface $response) use ($request, $chainIdentifier) {
             if (array_key_exists($chainIdentifier, $this->retryStorage)) {
                 unset($this->retryStorage[$chainIdentifier]);
             }
@@ -63,7 +61,7 @@ class RetryPlugin implements Plugin
                 throw $exception;
             }
 
-            $this->retryStorage[$chainIdentifier]++;
+            ++$this->retryStorage[$chainIdentifier];
 
             // Retry in synchrone
             $promise = $this->handleRequest($request, $next, $first);

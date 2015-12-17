@@ -4,7 +4,6 @@ namespace Http\Client\Plugin;
 
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
-use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -15,14 +14,14 @@ use Psr\Http\Message\RequestInterface;
 class PluginClient implements HttpClient, HttpAsyncClient
 {
     /**
-     * An HTTP async client
+     * An HTTP async client.
      *
      * @var HttpAsyncClient
      */
     protected $client;
 
     /**
-     * The plugin chain
+     * The plugin chain.
      *
      * @var Plugin[]
      */
@@ -75,7 +74,7 @@ class PluginClient implements HttpClient, HttpAsyncClient
     private function createPluginChain($pluginList)
     {
         $client = $this->client;
-        $lastCallable = function (RequestInterface $request) use($client) {
+        $lastCallable = function (RequestInterface $request) use ($client) {
             return $client->sendAsyncRequest($request);
         };
 

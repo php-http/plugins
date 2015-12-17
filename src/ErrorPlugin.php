@@ -37,8 +37,8 @@ class ErrorPlugin implements Plugin
     {
         $promise = $next($request);
 
-        return $promise->then(function (ResponseInterface $response) use($request) {
-            if (preg_match('/'.$this->statusCodeRegex.'/', (string)$response->getStatusCode())) {
+        return $promise->then(function (ResponseInterface $response) use ($request) {
+            if (preg_match('/'.$this->statusCodeRegex.'/', (string) $response->getStatusCode())) {
                 throw new HttpException('The server returned an error', $request, $response);
             }
 
