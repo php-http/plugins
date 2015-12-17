@@ -2,7 +2,7 @@
 
 namespace Http\Client\Plugin;
 
-use Http\Client\Promise;
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 
 /**
