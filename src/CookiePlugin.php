@@ -15,7 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 class CookiePlugin implements Plugin
 {
     /**
-     * Cookie storage
+     * Cookie storage.
      *
      * @var CookieJar
      */
@@ -54,7 +54,7 @@ class CookiePlugin implements Plugin
             $request = $request->withAddedHeader('Cookie', sprintf('%s=%s', $cookie->getName(), $cookie->getValue()));
         }
 
-        return $next($request)->then(function (ResponseInterface $response) use($request) {
+        return $next($request)->then(function (ResponseInterface $response) use ($request) {
             if ($response->hasHeader('Set-Cookie')) {
                 $setCookies = $response->getHeader('Set-Cookie');
 
@@ -92,15 +92,15 @@ class CookiePlugin implements Plugin
         $parts = array_map('trim', explode(';', $setCookie));
 
         if (empty($parts) || !strpos($parts[0], '=')) {
-            return null;
+            return;
         }
 
         list($name, $cookieValue) = $this->createValueKey(array_shift($parts));
 
-        $expires  = 0;
-        $domain   = $request->getUri()->getHost();
-        $path     = $request->getUri()->getPath();
-        $secure   = false;
+        $expires = 0;
+        $domain = $request->getUri()->getHost();
+        $path = $request->getUri()->getPath();
+        $secure = false;
         $httpOnly = false;
 
         // Add the cookie pieces into the parsed data array
@@ -113,7 +113,7 @@ class CookiePlugin implements Plugin
                     break;
 
                 case 'max-age':
-                    $expires = (new \DateTime())->add(new \DateInterval('PT' . (int)$value . 'S'));
+                    $expires = (new \DateTime())->add(new \DateInterval('PT'.(int) $value.'S'));
                     break;
 
                 case 'domain':
@@ -147,7 +147,7 @@ class CookiePlugin implements Plugin
     private function createValueKey($part)
     {
         $parts = explode('=', $part, 2);
-        $key   = trim($parts[0]);
+        $key = trim($parts[0]);
         $value = isset($parts[1]) ? trim($parts[1]) : true;
 
         return [$key, $value];

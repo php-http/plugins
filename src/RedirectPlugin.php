@@ -5,7 +5,6 @@ namespace Http\Client\Plugin;
 use Http\Client\Exception\HttpException;
 use Http\Client\Plugin\Exception\CircularRedirectionException;
 use Http\Client\Plugin\Exception\MultipleRedirectionException;
-use Http\Promise\Promise;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -27,7 +26,7 @@ class RedirectPlugin implements Plugin
         300 => [
             'switch' => [
                 'unless' => ['GET', 'HEAD'],
-                'to' => 'GET'
+                'to' => 'GET',
             ],
             'multiple' => true,
             'permanent' => false,
@@ -35,7 +34,7 @@ class RedirectPlugin implements Plugin
         301 => [
             'switch' => [
                 'unless' => ['GET', 'HEAD'],
-                'to' => 'GET'
+                'to' => 'GET',
             ],
             'multiple' => false,
             'permanent' => true,
@@ -43,7 +42,7 @@ class RedirectPlugin implements Plugin
         302 => [
             'switch' => [
                 'unless' => ['GET', 'HEAD'],
-                'to' => 'GET'
+                'to' => 'GET',
             ],
             'multiple' => false,
             'permanent' => false,
@@ -51,7 +50,7 @@ class RedirectPlugin implements Plugin
         303 => [
             'switch' => [
                 'unless' => ['GET', 'HEAD'],
-                'to' => 'GET'
+                'to' => 'GET',
             ],
             'multiple' => false,
             'permanent' => false,
@@ -65,7 +64,7 @@ class RedirectPlugin implements Plugin
             'switch' => false,
             'multiple' => false,
             'permanent' => true,
-        ]
+        ],
     ];
 
     /**
@@ -122,7 +121,7 @@ class RedirectPlugin implements Plugin
             return $first($redirectRequest);
         }
 
-        return $next($request)->then(function (ResponseInterface $response) use($request, $first) {
+        return $next($request)->then(function (ResponseInterface $response) use ($request, $first) {
             $statusCode = $response->getStatusCode();
 
             if (!array_key_exists($statusCode, $this->redirectCodes)) {
@@ -131,7 +130,7 @@ class RedirectPlugin implements Plugin
 
             $uri = $this->createUri($response, $request);
             $redirectRequest = $this->buildRedirectRequest($request, $uri, $statusCode);
-            $chainIdentifier = spl_object_hash((object)$first);
+            $chainIdentifier = spl_object_hash((object) $first);
 
             if (!array_key_exists($chainIdentifier, $this->circularDetection)) {
                 $this->circularDetection[$chainIdentifier] = [];
@@ -145,7 +144,7 @@ class RedirectPlugin implements Plugin
 
             if ($this->redirectCodes[$statusCode]['permanent']) {
                 $this->redirectStorage[$request->getRequestTarget()] = [
-                    'uri'    => $uri,
+                    'uri' => $uri,
                     'status' => $statusCode,
                 ];
             }
@@ -160,9 +159,9 @@ class RedirectPlugin implements Plugin
     /**
      * Builds the redirect request.
      *
-     * @param RequestInterface $request     Original request
-     * @param UriInterface     $uri         New uri
-     * @param int              $statusCode  Status code from the redirect response
+     * @param RequestInterface $request    Original request
+     * @param UriInterface     $uri        New uri
+     * @param int              $statusCode Status code from the redirect response
      *
      * @return MessageInterface|RequestInterface
      */
@@ -193,7 +192,7 @@ class RedirectPlugin implements Plugin
      * @param ResponseInterface $response The redirect response
      * @param RequestInterface  $request  The original request
      *
-     * @throws HttpException If location header is not usable (missing or incorrect)
+     * @throws HttpException                If location header is not usable (missing or incorrect)
      * @throws MultipleRedirectionException If a 300 status code is received and default location cannot be resolved (doesn't use the location header or not present)
      *
      * @return UriInterface
@@ -201,7 +200,7 @@ class RedirectPlugin implements Plugin
     private function createUri(ResponseInterface $response, RequestInterface $request)
     {
         if ($this->redirectCodes[$response->getStatusCode()]['multiple'] && (!$this->useDefaultForMultiple || !$response->hasHeader('Location'))) {
-            throw new MultipleRedirectionException("Cannot choose a redirection", $request, $response);
+            throw new MultipleRedirectionException('Cannot choose a redirection', $request, $response);
         }
 
         if (!$response->hasHeader('Location')) {

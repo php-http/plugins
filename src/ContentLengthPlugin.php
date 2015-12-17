@@ -6,14 +6,14 @@ use Http\Encoding\ChunkStream;
 use Psr\Http\Message\RequestInterface;
 
 /**
- * Allow to set the correct content length header on the request or to transfer it as a chunk if not possible
+ * Allow to set the correct content length header on the request or to transfer it as a chunk if not possible.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
 class ContentLengthPlugin implements Plugin
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {

@@ -6,7 +6,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Normalize a request or a response into a string or an array
+ * Normalize a request or a response into a string or an array.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  *
@@ -15,7 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 class Normalizer
 {
     /**
-     * Normalize a request to string
+     * Normalize a request to string.
      *
      * @param RequestInterface $request
      *
@@ -27,7 +27,7 @@ class Normalizer
     }
 
     /**
-     * Normalize a response to string
+     * Normalize a response to string.
      *
      * @param ResponseInterface $response
      *
@@ -35,6 +35,6 @@ class Normalizer
      */
     public function normalizeResponseToString(ResponseInterface $response)
     {
-        return sprintf("%s %s %s", $response->getStatusCode(), $response->getReasonPhrase(), $response->getProtocolVersion());
+        return sprintf('%s %s %s', $response->getStatusCode(), $response->getReasonPhrase(), $response->getProtocolVersion());
     }
 }
