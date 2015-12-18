@@ -86,14 +86,11 @@ class CachePlugin implements Plugin
      */
     protected function isCacheable(ResponseInterface $response)
     {
-        if (!in_array($response->getStatusCode(), [200, 203, 300, 301, 302, 404, 410])) {
-            return false;
-        }
-        if ($this->getCacheControlDirective($response, 'no-store') || $this->getCacheControlDirective($response, 'private')) {
-            return false;
-        }
+        $cachableCodes = [200, 203, 300, 301, 302, 404, 410];
+        $privateHeaders = $this->getCacheControlDirective($response, 'no-store') || $this->getCacheControlDirective($response, 'private');
 
-        return true;
+        // If http status code is cachable and if we respect the headers, make sure there is no private cache headers.
+        return in_array($response->getStatusCode(), $cachableCodes) && !($this->respectCacheHeaders && $privateHeaders);
     }
 
     /**
