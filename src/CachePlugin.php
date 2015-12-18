@@ -3,6 +3,7 @@
 namespace Http\Client\Plugin;
 
 use Http\Client\Tools\Promise\FulfilledPromise;
+use Http\Message\StreamFactory;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -18,6 +19,11 @@ class CachePlugin implements Plugin
      * @var CacheItemPoolInterface
      */
     private $pool;
+
+    /**
+     * @var StreamFactory
+     */
+    private $streamFactory;
 
     /**
      * Default time to store object in cache. This value is used if CachePlugin::respectCacheHeaders is false or
@@ -40,11 +46,13 @@ class CachePlugin implements Plugin
      *  - respect_cache_headers: Whether to look at the cache directives or ignore them.
      * 
      * @param CacheItemPoolInterface $pool
+     * @param StreamFactory          $streamFactory
      * @param array                  $options
      */
-    public function __construct(CacheItemPoolInterface $pool, array $options = [])
+    public function __construct(CacheItemPoolInterface $pool, StreamFactory $streamFactory, array $options = [])
     {
         $this->pool = $pool;
+        $this->streamFactory = $streamFactory;
         $this->defaultTtl = isset($options['default_ttl']) ? $options['default_ttl'] : null;
         $this->respectCacheHeaders = isset($options['respect_cache_headers']) ? $options['respect_cache_headers'] : true;
     }
@@ -67,12 +75,16 @@ class CachePlugin implements Plugin
 
         if ($cacheItem->isHit()) {
             // return cached response
-            return new FulfilledPromise($cacheItem->get());
+            $data = $cacheItem->get();
+            $response = $data['response'];
+            $response = $response->withBody($this->streamFactory->createStream($data['body']));
+
+            return new FulfilledPromise($response);
         }
 
         return $next($request)->then(function (ResponseInterface $response) use ($cacheItem) {
             if ($this->isCacheable($response)) {
-                $cacheItem->set($response)
+                $cacheItem->set(['response' => $response, 'body' => $response->getBody()->__toString()])
                     ->expiresAfter($this->getMaxAge($response));
                 $this->pool->save($cacheItem);
             }
