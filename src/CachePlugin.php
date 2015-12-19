@@ -96,10 +96,10 @@ class CachePlugin implements Plugin
         if (!$this->respectCacheHeaders) {
             return true;
         }
-         if ($this->getCacheControlDirective($response, 'no-store') || $this->getCacheControlDirective($response, 'private')) {
+        if ($this->getCacheControlDirective($response, 'no-store') || $this->getCacheControlDirective($response, 'private')) {
             return false;
         }
-        
+
         return true;
     }
 
