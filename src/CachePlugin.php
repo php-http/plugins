@@ -28,13 +28,17 @@ class CachePlugin implements Plugin
     private $defaultTtl;
 
     /**
-     * Look at the cache headers to know how long this response is going to be cached.
+     * Look at the cache headers to know whether this response may be cached and to 
+     * decide how it can be cached.
      *
-     * @var bool
+     * @var bool Defaults to true
      */
     private $respectCacheHeaders;
 
     /**
+     * Available options are
+     *  - respect_cache_headers: Whether to look at the cache directives or ignore them.
+     * 
      * @param CacheItemPoolInterface $pool
      * @param array                  $options
      */
@@ -86,21 +90,26 @@ class CachePlugin implements Plugin
      */
     protected function isCacheable(ResponseInterface $response)
     {
-        $cachableCodes = [200, 203, 300, 301, 302, 404, 410];
-        $privateHeaders = $this->getCacheControlDirective($response, 'no-store') || $this->getCacheControlDirective($response, 'private');
-
-        // If http status code is cachable and if we respect the headers, make sure there is no private cache headers.
-        return in_array($response->getStatusCode(), $cachableCodes) && !($this->respectCacheHeaders && $privateHeaders);
+        if (!in_array($response->getStatusCode(), [200, 203, 300, 301, 302, 404, 410])) {
+            return false;
+        }
+        if (!$this->respectCacheHeaders) {
+            return true;
+        }
+         if ($this->getCacheControlDirective($response, 'no-store') || $this->getCacheControlDirective($response, 'private')) {
+            return false;
+        }
+        
+        return true;
     }
 
     /**
-     * Returns the value of a parameter in the cache control header. If not found we return false. If found with no
-     * value return true.
+     * Get the value of a parameter in the cache control header.
      *
      * @param ResponseInterface $response
-     * @param string            $name
+     * @param string            $name     The field of Cache-Control to fetch
      *
-     * @return bool|string
+     * @return bool|string The value of the directive, true if directive without value, false if directive not present.
      */
     private function getCacheControlDirective(ResponseInterface $response, $name)
     {
