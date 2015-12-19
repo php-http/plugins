@@ -7,6 +7,7 @@ use Http\Message\StreamFactory;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Allow for caching a response.
@@ -26,35 +27,27 @@ class CachePlugin implements Plugin
     private $streamFactory;
 
     /**
-     * Default time to store object in cache. This value is used if CachePlugin::respectCacheHeaders is false or
-     * if cache headers are missing.
-     *
-     * @var int
+     * @var array
      */
-    private $defaultTtl;
-
-    /**
-     * Look at the cache headers to know whether this response may be cached and to 
-     * decide how it can be cached.
-     *
-     * @var bool Defaults to true
-     */
-    private $respectCacheHeaders;
+    private $config;
 
     /**
      * Available options are
      *  - respect_cache_headers: Whether to look at the cache directives or ignore them.
-     * 
+     *  - default_ttl: If we do not respect cache headers or can't calculate a good ttl, use this value.
+     *
      * @param CacheItemPoolInterface $pool
      * @param StreamFactory          $streamFactory
-     * @param array                  $options
+     * @param array                  $config
      */
-    public function __construct(CacheItemPoolInterface $pool, StreamFactory $streamFactory, array $options = [])
+    public function __construct(CacheItemPoolInterface $pool, StreamFactory $streamFactory, array $config = [])
     {
         $this->pool = $pool;
         $this->streamFactory = $streamFactory;
-        $this->defaultTtl = isset($options['default_ttl']) ? $options['default_ttl'] : null;
-        $this->respectCacheHeaders = isset($options['respect_cache_headers']) ? $options['respect_cache_headers'] : true;
+
+        $optionsResolver = new OptionsResolver();
+        $this->configureOptions($optionsResolver);
+        $this->config = $optionsResolver->resolve($config);
     }
 
     /**
@@ -105,7 +98,7 @@ class CachePlugin implements Plugin
         if (!in_array($response->getStatusCode(), [200, 203, 300, 301, 302, 404, 410])) {
             return false;
         }
-        if (!$this->respectCacheHeaders) {
+        if (!$this->config['respect_cache_headers']) {
             return true;
         }
         if ($this->getCacheControlDirective($response, 'no-store') || $this->getCacheControlDirective($response, 'private')) {
@@ -160,8 +153,8 @@ class CachePlugin implements Plugin
      */
     private function getMaxAge(ResponseInterface $response)
     {
-        if (!$this->respectCacheHeaders) {
-            return $this->defaultTtl;
+        if (!$this->config['respect_cache_headers']) {
+            return $this->config['default_ttl'];
         }
 
         // check for max age in the Cache-Control header
@@ -181,6 +174,24 @@ class CachePlugin implements Plugin
             return (new \DateTime($header))->getTimestamp() - (new \DateTime())->getTimestamp();
         }
 
-        return $this->defaultTtl;
+        return $this->config['default_ttl'];
+    }
+
+    /**
+     * Configure an options resolver.
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return array
+     */
+    private function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'default_ttl' => null,
+            'respect_cache_headers' => true,
+        ]);
+
+        $resolver->setAllowedTypes('default_ttl', ['int', 'null']);
+        $resolver->setAllowedTypes('respect_cache_headers', 'bool');
     }
 }
