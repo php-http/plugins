@@ -36,10 +36,6 @@ class ContentLengthPluginSpec extends ObjectBehavior
         $request->getBody()->shouldBeCalled()->willReturn($stream);
 
         $stream->getSize()->shouldBeCalled()->willReturn(null);
-        $stream->isReadable()->shouldBeCalled()->willReturn(true);
-        $stream->isWritable()->shouldBeCalled()->willReturn(false);
-        $stream->eof()->shouldBeCalled()->willReturn(false);
-
         $request->withBody(Argument::type('Http\Encoding\ChunkStream'))->shouldBeCalled()->willReturn($request);
 
         $this->handleRequest($request, function () {}, function () {});
