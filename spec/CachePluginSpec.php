@@ -32,6 +32,8 @@ class CachePluginSpec extends ObjectBehavior
     {
         $httpBody = 'body';
         $stream->__toString()->willReturn($httpBody);
+        $stream->isSeekable()->willReturn(true);
+        $stream->rewind()->shouldBeCalled();
 
         $request->getMethod()->willReturn('GET');
         $request->getUri()->willReturn('/');
@@ -88,6 +90,8 @@ class CachePluginSpec extends ObjectBehavior
     {
         $httpBody = 'body';
         $stream->__toString()->willReturn($httpBody);
+        $stream->isSeekable()->willReturn(true);
+        $stream->rewind()->shouldBeCalled();
 
         $request->getMethod()->willReturn('GET');
         $request->getUri()->willReturn('/');
