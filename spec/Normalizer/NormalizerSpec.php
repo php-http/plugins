@@ -16,13 +16,14 @@ class NormalizerSpec extends ObjectBehavior
         $this->shouldHaveType('Http\Client\Plugin\Normalizer\Normalizer');
     }
 
-    function it_normalize_request_to_string(RequestInterface $request)
+    function it_normalize_request_to_string(RequestInterface $request, UriInterface $uri)
     {
+        $uri->__toString()->willReturn('http://foo.com/bar');
         $request->getMethod()->willReturn('GET');
-        $request->getRequestTarget()->willReturn('/');
+        $request->getUri()->willReturn($uri);
         $request->getProtocolVersion()->willReturn('1.1');
 
-        $this->normalizeRequestToString($request)->shouldReturn('GET / 1.1');
+        $this->normalizeRequestToString($request)->shouldReturn('GET http://foo.com/bar 1.1');
     }
 
     function it_normalize_response_to_string(ResponseInterface $response)

@@ -23,7 +23,7 @@ class Normalizer
      */
     public function normalizeRequestToString(RequestInterface $request)
     {
-        return sprintf('%s %s %s', $request->getMethod(), $request->getRequestTarget(), $request->getProtocolVersion());
+        return sprintf('%s %s %s', $request->getMethod(), $request->getUri()->__toString(), $request->getProtocolVersion());
     }
 
     /**

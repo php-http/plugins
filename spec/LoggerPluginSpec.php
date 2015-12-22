@@ -10,6 +10,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 
 class LoggerPluginSpec extends ObjectBehavior
@@ -29,13 +30,14 @@ class LoggerPluginSpec extends ObjectBehavior
         $this->shouldImplement('Http\Client\Plugin\Plugin');
     }
 
-    function it_logs_request_and_response(LoggerInterface $logger, RequestInterface $request, ResponseInterface $response)
+    function it_logs_request_and_response(LoggerInterface $logger, RequestInterface $request, ResponseInterface $response, UriInterface $uri)
     {
         $logger->info('Emit request: "GET / 1.1"', ['request' => $request])->shouldBeCalled();
         $logger->info('Receive response: "200 Ok 1.1" for request: "GET / 1.1"', ['request' => $request, 'response' => $response])->shouldBeCalled();
 
+        $uri->__toString()->willReturn('/');
         $request->getMethod()->willReturn('GET');
-        $request->getRequestTarget()->willReturn('/');
+        $request->getUri()->willReturn($uri);
         $request->getProtocolVersion()->willReturn('1.1');
 
         $response->getReasonPhrase()->willReturn('Ok');
@@ -49,15 +51,16 @@ class LoggerPluginSpec extends ObjectBehavior
         $this->handleRequest($request, $next, function () {});
     }
 
-    function it_logs_exception(LoggerInterface $logger, RequestInterface $request)
+    function it_logs_exception(LoggerInterface $logger, RequestInterface $request, UriInterface $uri)
     {
         $exception = new NetworkException('Cannot connect', $request->getWrappedObject());
 
         $logger->info('Emit request: "GET / 1.1"', ['request' => $request])->shouldBeCalled();
         $logger->error('Error: "Cannot connect" when emitting request: "GET / 1.1"', ['request' => $request, 'exception' => $exception])->shouldBeCalled();
 
+        $uri->__toString()->willReturn('/');
         $request->getMethod()->willReturn('GET');
-        $request->getRequestTarget()->willReturn('/');
+        $request->getUri()->willReturn($uri);
         $request->getProtocolVersion()->willReturn('1.1');
 
         $next = function () use ($exception) {
@@ -67,7 +70,7 @@ class LoggerPluginSpec extends ObjectBehavior
         $this->handleRequest($request, $next, function () {});
     }
 
-    function it_logs_response_within_exception(LoggerInterface $logger, RequestInterface $request, ResponseInterface $response)
+    function it_logs_response_within_exception(LoggerInterface $logger, RequestInterface $request, ResponseInterface $response, UriInterface $uri)
     {
         $exception = new HttpException('Forbidden', $request->getWrappedObject(), $response->getWrappedObject());
 
@@ -78,8 +81,9 @@ class LoggerPluginSpec extends ObjectBehavior
             'exception' => $exception
         ])->shouldBeCalled();
 
+        $uri->__toString()->willReturn('/');
         $request->getMethod()->willReturn('GET');
-        $request->getRequestTarget()->willReturn('/');
+        $request->getUri()->willReturn($uri);
         $request->getProtocolVersion()->willReturn('1.1');
 
         $response->getReasonPhrase()->willReturn('Forbidden');
