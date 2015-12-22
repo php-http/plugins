@@ -189,8 +189,6 @@ class CachePlugin implements Plugin
      * Configure an options resolver.
      *
      * @param OptionsResolver $resolver
-     *
-     * @return array
      */
     private function configureOptions(OptionsResolver $resolver)
     {
