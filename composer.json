@@ -3,7 +3,7 @@
     "description": "Plugins for HTTPlug",
     "license": "MIT",
     "keywords": ["plugin", "http", "psr7"],
-    "homepage": "http://php-http.org",
+    "homepage": "http://httplug.io",
     "authors": [
         {
             "name": "Joel Wurtz",
@@ -16,14 +16,13 @@
         "php-http/client-tools": "^0.1@dev"
     },
     "require-dev": {
-        "phpspec/phpspec": "^2.4-alpha",
-        "henrikbjorn/phpspec-code-coverage" : "^1.0",
-        "php-http/authentication": "^0.1@dev",
+        "php-http/message": "^0.1",
         "php-http/cookie": "^0.1@dev",
         "symfony/stopwatch": "^2.3",
         "psr/log": "^1.0",
-        "psr/cache": "1.0.0",
-        "php-http/encoding": "^0.1@dev"
+        "psr/cache": "^1.0",
+        "phpspec/phpspec": "^2.4",
+        "henrikbjorn/phpspec-code-coverage" : "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -31,12 +30,11 @@
         }
     },
     "suggest": {
-        "php-http/authentication": "Allow to use the AuthenticationPlugin",
+        "php-http/message": "Allow to use Authentication and Encoding plugins",
         "php-http/cookie": "Allow to use CookiePlugin",
         "symfony/stopwatch": "Allow to use the StopwatchPlugin",
         "psr/log-implementation": "Allow to use the LoggerPlugin",
-        "psr/cache-implementation": "Allow to use the CachePlugin",
-        "php-http/encoding": "Allow to use the Decoder and Encoder plugin"
+        "psr/cache-implementation": "Allow to use the CachePlugin"
     },
     "scripts": {
         "test": "vendor/bin/phpspec run",

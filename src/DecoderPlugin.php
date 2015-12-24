@@ -2,10 +2,10 @@
 
 namespace Http\Client\Plugin;
 
-use Http\Encoding\DechunkStream;
-use Http\Encoding\DecompressStream;
-use Http\Encoding\GzipDecodeStream;
-use Http\Encoding\InflateStream;
+use Http\Message\Encoding\DechunkStream;
+use Http\Message\Encoding\DecompressStream;
+use Http\Message\Encoding\GzipDecodeStream;
+use Http\Message\Encoding\InflateStream;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;

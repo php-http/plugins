@@ -2,7 +2,7 @@
 
 namespace Http\Client\Plugin;
 
-use Http\Authentication\Authentication;
+use Http\Message\Authentication;
 use Psr\Http\Message\RequestInterface;
 
 /**

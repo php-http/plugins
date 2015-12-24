@@ -2,7 +2,7 @@
 
 namespace Http\Client\Plugin;
 
-use Http\Encoding\ChunkStream;
+use Http\Message\Encoding\ChunkStream;
 use Psr\Http\Message\RequestInterface;
 
 /**

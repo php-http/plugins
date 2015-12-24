@@ -37,7 +37,7 @@ class DecoderPluginSpec extends ObjectBehavior
         $response->hasHeader('Transfer-Encoding')->willReturn(true);
         $response->getHeader('Transfer-Encoding')->willReturn(['chunked']);
         $response->getBody()->willReturn($stream);
-        $response->withBody(Argument::type('Http\Encoding\DechunkStream'))->willReturn($response);
+        $response->withBody(Argument::type('Http\Message\Encoding\DechunkStream'))->willReturn($response);
         $response->withHeader('Transfer-Encoding', [])->willReturn($response);
         $response->hasHeader('Content-Encoding')->willReturn(false);
 
@@ -60,7 +60,7 @@ class DecoderPluginSpec extends ObjectBehavior
         $response->hasHeader('Content-Encoding')->willReturn(true);
         $response->getHeader('Content-Encoding')->willReturn(['gzip']);
         $response->getBody()->willReturn($stream);
-        $response->withBody(Argument::type('Http\Encoding\GzipDecodeStream'))->willReturn($response);
+        $response->withBody(Argument::type('Http\Message\Encoding\GzipDecodeStream'))->willReturn($response);
         $response->withHeader('Content-Encoding', [])->willReturn($response);
 
         $stream->isReadable()->willReturn(true);
@@ -82,7 +82,7 @@ class DecoderPluginSpec extends ObjectBehavior
         $response->hasHeader('Content-Encoding')->willReturn(true);
         $response->getHeader('Content-Encoding')->willReturn(['deflate']);
         $response->getBody()->willReturn($stream);
-        $response->withBody(Argument::type('Http\Encoding\InflateStream'))->willReturn($response);
+        $response->withBody(Argument::type('Http\Message\Encoding\InflateStream'))->willReturn($response);
         $response->withHeader('Content-Encoding', [])->willReturn($response);
 
         $stream->isReadable()->willReturn(true);
@@ -104,7 +104,7 @@ class DecoderPluginSpec extends ObjectBehavior
         $response->hasHeader('Content-Encoding')->willReturn(true);
         $response->getHeader('Content-Encoding')->willReturn(['compress']);
         $response->getBody()->willReturn($stream);
-        $response->withBody(Argument::type('Http\Encoding\DecompressStream'))->willReturn($response);
+        $response->withBody(Argument::type('Http\Message\Encoding\DecompressStream'))->willReturn($response);
         $response->withHeader('Content-Encoding', [])->willReturn($response);
 
         $stream->isReadable()->willReturn(true);

@@ -2,7 +2,7 @@
 
 namespace spec\Http\Client\Plugin;
 
-use Http\Authentication\Authentication;
+use Http\Message\Authentication;
 use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use PhpSpec\ObjectBehavior;
