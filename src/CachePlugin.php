@@ -2,8 +2,8 @@
 
 namespace Http\Client\Plugin;
 
-use Http\Client\Tools\Promise\FulfilledPromise;
 use Http\Message\StreamFactory;
+use Http\Promise\FulfilledPromise;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;

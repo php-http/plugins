@@ -4,8 +4,8 @@ namespace spec\Http\Client\Plugin;
 
 use Http\Client\Exception\TransferException;
 use Http\Client\Plugin\Journal\Journal;
-use Http\Client\Tools\Promise\FulfilledPromise;
-use Http\Client\Tools\Promise\RejectedPromise;
+use Http\Promise\FulfilledPromise;
+use Http\Promise\RejectedPromise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use PhpSpec\ObjectBehavior;

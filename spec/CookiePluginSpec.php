@@ -2,7 +2,7 @@
 
 namespace spec\Http\Client\Plugin;
 
-use Http\Client\Tools\Promise\FulfilledPromise;
+use Http\Promise\FulfilledPromise;
 use Http\Cookie\Cookie;
 use Http\Cookie\CookieJar;
 use Http\Promise\Promise;

@@ -2,7 +2,7 @@
 
 namespace spec\Http\Client\Plugin;
 
-use Http\Client\Tools\Promise\FulfilledPromise;
+use Http\Promise\FulfilledPromise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
