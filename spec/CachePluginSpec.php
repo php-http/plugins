@@ -2,8 +2,8 @@
 
 namespace spec\Http\Client\Plugin;
 
-use Http\Client\Tools\Promise\FulfilledPromise;
 use Http\Message\StreamFactory;
+use Http\Promise\FulfilledPromise;
 use PhpSpec\ObjectBehavior;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
