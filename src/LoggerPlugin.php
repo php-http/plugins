@@ -3,7 +3,8 @@
 namespace Http\Client\Plugin;
 
 use Http\Client\Exception;
-use Http\Client\Plugin\Normalizer\Normalizer;
+use Http\Message\Formatter;
+use Http\Message\Formatter\SimpleFormatter;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -23,19 +24,19 @@ class LoggerPlugin implements Plugin
     private $logger;
 
     /**
-     * Normalize request and response to string or array.
+     * Formats a request/response as string.
      *
-     * @var Normalizer
+     * @var Formatter
      */
-    private $normalizer;
+    private $formatter;
 
     /**
      * @param LoggerInterface $logger
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, Formatter $formatter = null)
     {
         $this->logger = $logger;
-        $this->normalizer = new Normalizer();
+        $this->formatter = $formatter ?: new SimpleFormatter();
     }
 
     /**
@@ -43,11 +44,11 @@ class LoggerPlugin implements Plugin
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {
-        $this->logger->info(sprintf('Emit request: "%s"', $this->normalizer->normalizeRequestToString($request)), ['request' => $request]);
+        $this->logger->info(sprintf('Emit request: "%s"', $this->formatter->formatRequest($request)), ['request' => $request]);
 
         return $next($request)->then(function (ResponseInterface $response) use ($request) {
             $this->logger->info(
-                sprintf('Receive response: "%s" for request: "%s"', $this->normalizer->normalizeResponseToString($response), $this->normalizer->normalizeRequestToString($request)),
+                sprintf('Receive response: "%s" for request: "%s"', $this->formatter->formatResponse($response), $this->formatter->formatRequest($request)),
                 [
                     'request' => $request,
                     'response' => $response,
@@ -58,7 +59,7 @@ class LoggerPlugin implements Plugin
         }, function (Exception $exception) use ($request) {
             if ($exception instanceof Exception\HttpException) {
                 $this->logger->error(
-                    sprintf('Error: "%s" with response: "%s" when emitting request: "%s"', $exception->getMessage(), $this->normalizer->normalizeResponseToString($exception->getResponse()), $this->normalizer->normalizeRequestToString($request)),
+                    sprintf('Error: "%s" with response: "%s" when emitting request: "%s"', $exception->getMessage(), $this->formatter->formatResponse($exception->getResponse()), $this->formatter->formatRequest($request)),
                     [
                         'request' => $request,
                         'response' => $exception->getResponse(),
@@ -67,7 +68,7 @@ class LoggerPlugin implements Plugin
                 );
             } else {
                 $this->logger->error(
-                    sprintf('Error: "%s" when emitting request: "%s"', $exception->getMessage(), $this->normalizer->normalizeRequestToString($request)),
+                    sprintf('Error: "%s" when emitting request: "%s"', $exception->getMessage(), $this->formatter->formatRequest($request)),
                     [
                         'request' => $request,
                         'exception' => $exception,
