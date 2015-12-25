@@ -4,10 +4,19 @@ namespace spec\Http\Client\Plugin;
 
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
+use Http\Client\Plugin\Plugin;
 use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use PhpSpec\ObjectBehavior;
+
+class DefectuousPlugin implements Plugin
+{
+    public function handleRequest(RequestInterface $request, callable $next, callable $first)
+    {
+        return $first($request);
+    }
+}
 
 class PluginClientSpec extends ObjectBehavior
 {
@@ -44,5 +53,12 @@ class PluginClientSpec extends ObjectBehavior
 
         $this->beConstructedWith($asyncClient);
         $this->sendAsyncRequest($request)->shouldReturn($promise);
+    }
+
+    function it_throws_loop_exception(HttpClient $client, RequestInterface $request)
+    {
+        $this->beConstructedWith($client, [new DefectuousPlugin()]);
+
+        $this->shouldThrow('Http\Client\Plugin\Exception\LoopException')->duringSendRequest($request);
     }
 }

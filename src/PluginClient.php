@@ -4,7 +4,9 @@ namespace Http\Client\Plugin;
 
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
+use Http\Client\Plugin\Exception\LoopException;
 use Psr\Http\Message\RequestInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * The client managing plugins and providing a decorator around HTTP Clients.
@@ -28,12 +30,20 @@ class PluginClient implements HttpClient, HttpAsyncClient
     protected $plugins;
 
     /**
+     * A list of options.
+     *
+     * @var array
+     */
+    protected $options;
+
+    /**
      * @param HttpClient|HttpAsyncClient $client
      * @param Plugin[]                   $plugins
+     * @param array                      $options
      *
      * @throws \RuntimeException if client is not an instance of HttpClient or HttpAsyncClient
      */
-    public function __construct($client, array $plugins = [])
+    public function __construct($client, array $plugins = [], array $options = [])
     {
         if ($client instanceof HttpAsyncClient) {
             $this->client = $client;
@@ -44,6 +54,7 @@ class PluginClient implements HttpClient, HttpAsyncClient
         }
 
         $this->plugins = $plugins;
+        $this->options = $this->configure($options);
     }
 
     /**
@@ -67,6 +78,23 @@ class PluginClient implements HttpClient, HttpAsyncClient
     }
 
     /**
+     * Configure the plugin client.
+     *
+     * @param array $options
+     *
+     * @return array
+     */
+    protected function configure(array $options = [])
+    {
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([
+            'max_restarts' => 10,
+        ]);
+
+        return $resolver->resolve($options);
+    }
+
+    /**
      * @param Plugin[] $pluginList
      *
      * @return callable
@@ -74,6 +102,8 @@ class PluginClient implements HttpClient, HttpAsyncClient
     private function createPluginChain($pluginList)
     {
         $client = $this->client;
+        $options = $this->options;
+
         $lastCallable = function (RequestInterface $request) use ($client) {
             return $client->sendAsyncRequest($request);
         };
@@ -86,6 +116,17 @@ class PluginClient implements HttpClient, HttpAsyncClient
 
             $firstCallable = $lastCallable;
         }
+
+        $firstCalls = 0;
+        $firstCallable = function (RequestInterface $request) use ($options, $lastCallable, &$firstCalls) {
+            if ($firstCalls > $options['max_restarts']) {
+                throw new LoopException('Too many restarts in plugin client', $request);
+            }
+
+            ++$firstCalls;
+
+            return $lastCallable($request);
+        };
 
         return $firstCallable;
     }
