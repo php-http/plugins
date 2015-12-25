@@ -10,6 +10,14 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use PhpSpec\ObjectBehavior;
 
+class DefectuousPlugin implements Plugin
+{
+    public function handleRequest(RequestInterface $request, callable $next, callable $first)
+    {
+        return $first($request);
+    }
+}
+
 class PluginClientSpec extends ObjectBehavior
 {
     function let(HttpClient $client)
@@ -52,13 +60,5 @@ class PluginClientSpec extends ObjectBehavior
         $this->beConstructedWith($client, [new DefectuousPlugin()]);
 
         $this->shouldThrow('Http\Client\Plugin\Exception\LoopException')->duringSendRequest($request);
-    }
-}
-
-class DefectuousPlugin implements Plugin
-{
-    public function handleRequest(RequestInterface $request, callable $next, callable $first)
-    {
-        return $first($request);
     }
 }
