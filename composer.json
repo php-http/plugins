@@ -32,6 +32,11 @@
             "Http\\Client\\Plugin\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "spec\\Http\\Client\\Plugin\\": "spec/"
+        }
+    },
     "suggest": {
         "php-http/message": "Allow to use Authentication and Encoding plugins",
         "php-http/cookie": "Allow to use CookiePlugin",

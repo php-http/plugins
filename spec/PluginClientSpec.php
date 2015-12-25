@@ -10,14 +10,6 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use PhpSpec\ObjectBehavior;
 
-class DefectuousPlugin implements Plugin
-{
-    public function handleRequest(RequestInterface $request, callable $next, callable $first)
-    {
-        return $first($request);
-    }
-}
-
 class PluginClientSpec extends ObjectBehavior
 {
     function let(HttpClient $client)
@@ -44,7 +36,7 @@ class PluginClientSpec extends ObjectBehavior
     {
         $client->sendRequest($request)->willReturn($response);
 
-        $this->sendRequest($request)->shouldReturnAnInstanceOf('Psr\Http\Message\ResponseInterface');
+        $this->sendRequest($request)->shouldReturn($response);
     }
 
     function it_sends_async_request_with_underlying_client(HttpAsyncClient $asyncClient, RequestInterface $request, Promise $promise)
@@ -55,9 +47,25 @@ class PluginClientSpec extends ObjectBehavior
         $this->sendAsyncRequest($request)->shouldReturn($promise);
     }
 
+    function it_sends_async_request_if_no_send_request(HttpAsyncClient $asyncClient, RequestInterface $request, ResponseInterface $response, Promise $promise)
+    {
+        $this->beConstructedWith($asyncClient->getWrappedObject());
+        $asyncClient->sendAsyncRequest($request)->willReturn($promise);
+        $promise->wait()->willReturn($response);
+
+        $this->sendRequest($request)->shouldReturn($response);
+    }
+
+    function it_prefers_send_request(StubClient $client, RequestInterface $request, ResponseInterface $response)
+    {
+        $client->sendRequest($request)->willReturn($response);
+
+        $this->sendRequest($request)->shouldReturn($response);
+    }
+
     function it_throws_loop_exception(HttpClient $client, RequestInterface $request)
     {
-        $this->beConstructedWith($client, [new DefectuousPlugin()]);
+        $this->beConstructedWith($client, [new LoopPlugin()]);
 
         $this->shouldThrow('Http\Client\Plugin\Exception\LoopException')->duringSendRequest($request);
     }
