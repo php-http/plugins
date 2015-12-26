@@ -15,7 +15,7 @@
         "php-http/httplug": "1.0.0-beta",
         "php-http/message-factory": "^1.0",
         "php-http/promise": "^0.1.1",
-        "php-http/client-common": "^0.1",
+        "php-http/client-common": "^0.2@dev",
         "symfony/options-resolver": "^2.6|^3.0"
     },
     "require-dev": {
@@ -30,6 +30,11 @@
     "autoload": {
         "psr-4": {
             "Http\\Client\\Plugin\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "spec\\Http\\Client\\Plugin\\": "spec/"
         }
     },
     "suggest": {

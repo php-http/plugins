@@ -2,9 +2,13 @@
 
 namespace Http\Client\Plugin;
 
+use Http\Client\Common\EmulatedHttpAsyncClient;
+use Http\Client\Exception;
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
 use Http\Client\Plugin\Exception\LoopException;
+use Http\Promise\FulfilledPromise;
+use Http\Promise\RejectedPromise;
 use Psr\Http\Message\RequestInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -48,7 +52,7 @@ class PluginClient implements HttpClient, HttpAsyncClient
         if ($client instanceof HttpAsyncClient) {
             $this->client = $client;
         } elseif ($client instanceof HttpClient) {
-            $this->client = new EmulateAsyncClient($client);
+            $this->client = new EmulatedHttpAsyncClient($client);
         } else {
             throw new \RuntimeException('Client must be an instance of Http\\Client\\HttpClient or Http\\Client\\HttpAsyncClient');
         }
@@ -62,9 +66,23 @@ class PluginClient implements HttpClient, HttpAsyncClient
      */
     public function sendRequest(RequestInterface $request)
     {
-        $promise = $this->sendAsyncRequest($request);
+        // If we don't have an http client, use the async call
+        if (!($this->client instanceof HttpClient)) {
+            return $this->sendAsyncRequest($request)->wait();
+        }
 
-        return $promise->wait();
+        // Else we want to use the synchronous call of the underlying client, and not the async one in the case
+        // we have both an async and sync call
+        $client = $this->client;
+        $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) use ($client) {
+            try {
+                return new FulfilledPromise($client->sendRequest($request));
+            } catch (Exception $exception) {
+                return new RejectedPromise($exception);
+            }
+        });
+
+        return $pluginChain($request)->wait();
     }
 
     /**
@@ -72,7 +90,10 @@ class PluginClient implements HttpClient, HttpAsyncClient
      */
     public function sendAsyncRequest(RequestInterface $request)
     {
-        $pluginChain = $this->createPluginChain($this->plugins);
+        $client = $this->client;
+        $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) use ($client) {
+            return $client->sendAsyncRequest($request);
+        });
 
         return $pluginChain($request);
     }
@@ -95,20 +116,18 @@ class PluginClient implements HttpClient, HttpAsyncClient
     }
 
     /**
-     * @param Plugin[] $pluginList
+     * Create the plugin chain.
+     *
+     * @param Plugin[] $pluginList     A list of plugins
+     * @param callable $clientCallable Callable making the HTTP call
      *
      * @return callable
      */
-    private function createPluginChain($pluginList)
+    private function createPluginChain($pluginList, callable $clientCallable)
     {
-        $client = $this->client;
         $options = $this->options;
+        $firstCallable = $lastCallable = $clientCallable;
 
-        $lastCallable = function (RequestInterface $request) use ($client) {
-            return $client->sendAsyncRequest($request);
-        };
-
-        $firstCallable = $lastCallable;
         while ($plugin = array_pop($pluginList)) {
             $lastCallable = function (RequestInterface $request) use ($plugin, $lastCallable, &$firstCallable) {
                 return $plugin->handleRequest($request, $lastCallable, $firstCallable);
