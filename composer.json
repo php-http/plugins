@@ -15,6 +15,8 @@
         "php-http/httplug": "1.0.0-beta",
         "php-http/message-factory": "^1.0",
         "php-http/promise": "^0.1.1",
+        "psr/log": "^1.0",
+        "psr/cache": "^1.0",
         "php-http/client-common": "^0.1.1",
         "php-http/message": "^0.1.1",
         "symfony/options-resolver": "^2.6|^3.0"
@@ -22,8 +24,6 @@
     "require-dev": {
         "php-http/cookie": "^0.1@dev",
         "symfony/stopwatch": "^2.3",
-        "psr/log": "^1.0",
-        "psr/cache": "^1.0",
         "phpspec/phpspec": "^2.4",
         "henrikbjorn/phpspec-code-coverage" : "^1.0"
     },
