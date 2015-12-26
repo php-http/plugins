@@ -2,6 +2,7 @@
 
 namespace Http\Client\Plugin;
 
+use Http\Client\Common\EmulatedHttpAsyncClient;
 use Http\Client\Exception;
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
@@ -51,7 +52,7 @@ class PluginClient implements HttpClient, HttpAsyncClient
         if ($client instanceof HttpAsyncClient) {
             $this->client = $client;
         } elseif ($client instanceof HttpClient) {
-            $this->client = new EmulateAsyncClient($client);
+            $this->client = new EmulatedHttpAsyncClient($client);
         } else {
             throw new \RuntimeException('Client must be an instance of Http\\Client\\HttpClient or Http\\Client\\HttpAsyncClient');
         }
@@ -65,10 +66,13 @@ class PluginClient implements HttpClient, HttpAsyncClient
      */
     public function sendRequest(RequestInterface $request)
     {
+        // If we don't have an http client, use the async call
         if (!($this->client instanceof HttpClient)) {
             return $this->sendAsyncRequest($request)->wait();
         }
 
+        // Else we want to use the synchronous call of the underlying client, and not the async one in the case
+        // we have both an async and sync call
         $client = $this->client;
         $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) use ($client) {
             try {
