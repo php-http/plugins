@@ -3,7 +3,7 @@
 namespace spec\Http\Client\Plugin;
 
 use Http\Client\Exception\TransferException;
-use Http\Client\Plugin\Journal\Journal;
+use Http\Client\Plugin\Journal;
 use Http\Promise\FulfilledPromise;
 use Http\Promise\RejectedPromise;
 use Psr\Http\Message\RequestInterface;

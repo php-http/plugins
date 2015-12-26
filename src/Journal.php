@@ -1,15 +1,15 @@
 <?php
 
-namespace Http\Client\Plugin\Journal;
+namespace Http\Client\Plugin;
 
 use Http\Client\Exception;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Journal.
- *
  * Records history of http calls.
+ *
+ * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
 interface Journal
 {

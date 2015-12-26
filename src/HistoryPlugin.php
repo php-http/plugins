@@ -3,7 +3,6 @@
 namespace Http\Client\Plugin;
 
 use Http\Client\Exception;
-use Http\Client\Plugin\Journal\Journal;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -13,12 +12,14 @@ use Psr\Http\Message\ResponseInterface;
 class HistoryPlugin implements Plugin
 {
     /**
-     * @var Journal Journal use to store request / responses / exception.
+     * Journal use to store request / responses / exception.
+     *
+     * @var Journal
      */
     private $journal;
 
     /**
-     * @param Journal $journal Journal use to store request / responses / exception.
+     * @param Journal $journal
      */
     public function __construct(Journal $journal)
     {
