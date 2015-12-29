@@ -73,10 +73,9 @@ final class PluginClient implements HttpClient, HttpAsyncClient
 
         // Else we want to use the synchronous call of the underlying client, and not the async one in the case
         // we have both an async and sync call
-        $client = $this->client;
-        $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) use ($client) {
+        $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) {
             try {
-                return new FulfilledPromise($client->sendRequest($request));
+                return new FulfilledPromise($this->client->sendRequest($request));
             } catch (Exception $exception) {
                 return new RejectedPromise($exception);
             }
@@ -90,9 +89,8 @@ final class PluginClient implements HttpClient, HttpAsyncClient
      */
     public function sendAsyncRequest(RequestInterface $request)
     {
-        $client = $this->client;
-        $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) use ($client) {
-            return $client->sendAsyncRequest($request);
+        $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) {
+            return $this->client->sendAsyncRequest($request);
         });
 
         return $pluginChain($request);
@@ -125,7 +123,6 @@ final class PluginClient implements HttpClient, HttpAsyncClient
      */
     private function createPluginChain($pluginList, callable $clientCallable)
     {
-        $options = $this->options;
         $firstCallable = $lastCallable = $clientCallable;
 
         while ($plugin = array_pop($pluginList)) {
@@ -137,8 +134,8 @@ final class PluginClient implements HttpClient, HttpAsyncClient
         }
 
         $firstCalls = 0;
-        $firstCallable = function (RequestInterface $request) use ($options, $lastCallable, &$firstCalls) {
-            if ($firstCalls > $options['max_restarts']) {
+        $firstCallable = function (RequestInterface $request) use ($lastCallable, &$firstCalls) {
+            if ($firstCalls > $this->options['max_restarts']) {
                 throw new LoopException('Too many restarts in plugin client', $request);
             }
 
