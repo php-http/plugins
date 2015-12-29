@@ -17,28 +17,28 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
-class PluginClient implements HttpClient, HttpAsyncClient
+final class PluginClient implements HttpClient, HttpAsyncClient
 {
     /**
      * An HTTP async client.
      *
      * @var HttpAsyncClient
      */
-    protected $client;
+    private $client;
 
     /**
      * The plugin chain.
      *
      * @var Plugin[]
      */
-    protected $plugins;
+    private $plugins;
 
     /**
      * A list of options.
      *
      * @var array
      */
-    protected $options;
+    private $options;
 
     /**
      * @param HttpClient|HttpAsyncClient $client
@@ -73,10 +73,9 @@ class PluginClient implements HttpClient, HttpAsyncClient
 
         // Else we want to use the synchronous call of the underlying client, and not the async one in the case
         // we have both an async and sync call
-        $client = $this->client;
-        $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) use ($client) {
+        $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) {
             try {
-                return new FulfilledPromise($client->sendRequest($request));
+                return new FulfilledPromise($this->client->sendRequest($request));
             } catch (Exception $exception) {
                 return new RejectedPromise($exception);
             }
@@ -90,9 +89,8 @@ class PluginClient implements HttpClient, HttpAsyncClient
      */
     public function sendAsyncRequest(RequestInterface $request)
     {
-        $client = $this->client;
-        $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) use ($client) {
-            return $client->sendAsyncRequest($request);
+        $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) {
+            return $this->client->sendAsyncRequest($request);
         });
 
         return $pluginChain($request);
@@ -105,7 +103,7 @@ class PluginClient implements HttpClient, HttpAsyncClient
      *
      * @return array
      */
-    protected function configure(array $options = [])
+    private function configure(array $options = [])
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -125,7 +123,6 @@ class PluginClient implements HttpClient, HttpAsyncClient
      */
     private function createPluginChain($pluginList, callable $clientCallable)
     {
-        $options = $this->options;
         $firstCallable = $lastCallable = $clientCallable;
 
         while ($plugin = array_pop($pluginList)) {
@@ -137,8 +134,8 @@ class PluginClient implements HttpClient, HttpAsyncClient
         }
 
         $firstCalls = 0;
-        $firstCallable = function (RequestInterface $request) use ($options, $lastCallable, &$firstCalls) {
-            if ($firstCalls > $options['max_restarts']) {
+        $firstCallable = function (RequestInterface $request) use ($lastCallable, &$firstCalls) {
+            if ($firstCalls > $this->options['max_restarts']) {
                 throw new LoopException('Too many restarts in plugin client', $request);
             }
 
