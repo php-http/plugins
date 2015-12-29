@@ -17,28 +17,28 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
-class PluginClient implements HttpClient, HttpAsyncClient
+final class PluginClient implements HttpClient, HttpAsyncClient
 {
     /**
      * An HTTP async client.
      *
      * @var HttpAsyncClient
      */
-    protected $client;
+    private $client;
 
     /**
      * The plugin chain.
      *
      * @var Plugin[]
      */
-    protected $plugins;
+    private $plugins;
 
     /**
      * A list of options.
      *
      * @var array
      */
-    protected $options;
+    private $options;
 
     /**
      * @param HttpClient|HttpAsyncClient $client
@@ -105,7 +105,7 @@ class PluginClient implements HttpClient, HttpAsyncClient
      *
      * @return array
      */
-    protected function configure(array $options = [])
+    private function configure(array $options = [])
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
