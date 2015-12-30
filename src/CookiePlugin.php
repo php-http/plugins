@@ -2,8 +2,8 @@
 
 namespace Http\Client\Plugin;
 
-use Http\Cookie\Cookie;
-use Http\Cookie\CookieJar;
+use Http\Message\Cookie;
+use Http\Message\CookieJar;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
