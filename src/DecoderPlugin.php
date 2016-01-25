@@ -52,9 +52,9 @@ class DecoderPlugin implements Plugin
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {
-        $encodings = extension_loaded('zlib') ? ['gzip', 'deflate', 'compress'] : [];
+        $encodings = extension_loaded('zlib') ? ['gzip', 'deflate', 'compress'] : ['identity'];
 
-        if ($this->useContentEncoding && count($encodings)) {
+        if ($this->useContentEncoding) {
             $request = $request->withHeader('Accept-Encoding', $encodings);
         }
         $encodings[] = 'chunked';
