@@ -5,9 +5,10 @@ namespace Http\Client\Plugin;
 use Http\Client\Exception;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Retry the request if it has somehow failed.
+ * Retry the request if an exception is thrown.
  *
  * By default will retry only one time.
  *
@@ -30,11 +31,21 @@ class RetryPlugin implements Plugin
     private $retryStorage = [];
 
     /**
-     * @param int $retry Number of retry before sending an exception
+     * Available options for $config are:
+     *  - retries: Number of retries to attempt if an exception occurs before letting the exception bubble up.
+     *
+     * @param array $config
      */
-    public function __construct($retry = 1)
+    public function __construct(array $config = [])
     {
-        $this->retry = $retry;
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([
+            'retries' => 1,
+        ]);
+        $resolver->setAllowedTypes('retries', 'int');
+        $options = $resolver->resolve($config);
+
+        $this->retry = $options['retries'];
     }
 
     /**

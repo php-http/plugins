@@ -9,6 +9,7 @@ use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Follow redirections.
@@ -74,7 +75,7 @@ class RedirectPlugin implements Plugin
      *
      * true     will keep all previous headers (default value)
      * false    will ditch all previous headers
-     * string[] will keep only headers specified in this array
+     * string[] will keep only headers with the specified names
      */
     protected $preserveHeader;
 
@@ -98,13 +99,32 @@ class RedirectPlugin implements Plugin
     protected $circularDetection = [];
 
     /**
-     * @param bool $preserveHeader
-     * @param bool $useDefaultForMultiple
+     * Available options for $config are:
+     *  - preserve_header: bool|string[] True keeps all headers, false remove all of them, an array is interpreted as a list of header names to keep.
+     *  - use_default_for_multiple: Whether the location header must be directly used for a multiple redirection status code (300).
+     *
+     * @param array $config
      */
-    public function __construct($preserveHeader = true, $useDefaultForMultiple = true)
+    public function __construct(array $config = [])
     {
-        $this->useDefaultForMultiple = $useDefaultForMultiple;
-        $this->preserveHeader = false === $preserveHeader ? [] : $preserveHeader;
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([
+            'preserve_header' => true,
+            'use_default_for_multiple' => true,
+        ]);
+        $resolver->setAllowedTypes('preserve_header', ['bool', 'array']);
+        $resolver->setAllowedTypes('use_default_for_multiple', 'bool');
+        $resolver->setNormalizer('preserve_header', function (OptionsResolver $resolver, $value) {
+            if (is_bool($value) && false === $value) {
+                return [];
+            }
+
+            return $value;
+        });
+        $options = $resolver->resolve($config);
+
+        $this->preserveHeader = $options['preserve_header'];
+        $this->useDefaultForMultiple = $options['use_default_for_multiple'];
     }
 
     /**

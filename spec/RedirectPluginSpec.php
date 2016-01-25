@@ -223,7 +223,7 @@ class RedirectPluginSpec extends ObjectBehavior
             }
         };
 
-        $this->beConstructedWith(true, false);
+        $this->beConstructedWith(['preserve_header' => true, 'use_default_for_multiple' => false]);
         $responseRedirect->getStatusCode()->willReturn('300');
 
         $promise = $this->handleRequest($request, $next, function () {});
@@ -301,7 +301,7 @@ class RedirectPluginSpec extends ObjectBehavior
         ResponseInterface $finalResponse,
         Promise $promise
     ) {
-        $this->beConstructedWith(['Accept']);
+        $this->beConstructedWith(['preserve_header' => ['Accept']]);
 
         $request->getRequestTarget()->willReturn('/original');
 
@@ -377,9 +377,9 @@ class RedirectPluginSpec extends ObjectBehavior
 
 class RedirectPluginStub extends RedirectPlugin
 {
-    public function __construct(UriInterface $uri, $storedUrl, $status, $preserveHeader = true, $useDefaultForMultiple = true)
+    public function __construct(UriInterface $uri, $storedUrl, $status, array $config = [])
     {
-        parent::__construct($preserveHeader, $useDefaultForMultiple);
+        parent::__construct($config);
 
         $this->redirectStorage[$storedUrl] = [
             'uri' => $uri,

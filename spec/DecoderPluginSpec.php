@@ -116,7 +116,7 @@ class DecoderPluginSpec extends ObjectBehavior
 
     function it_does_not_decode_with_content_encoding(RequestInterface $request, ResponseInterface $response)
     {
-        $this->beConstructedWith(false);
+        $this->beConstructedWith(['use_content_encoding' => false]);
 
         $request->withHeader('TE', ['gzip', 'deflate', 'compress', 'chunked'])->shouldBeCalled()->willReturn($request);
         $request->withHeader('Accept-Encoding', ['gzip', 'deflate', 'compress'])->shouldNotBeCalled();

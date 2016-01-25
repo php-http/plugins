@@ -9,9 +9,14 @@ use Http\Message\Encoding\InflateStream;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Allow to decode response body with a chunk, deflate, compress or gzip encoding.
+ *
+ * If zlib is not installed, only chunked encoding can be handled.
+ *
+ * If Content-Encoding is not disabled, the plugin will add an Accept-Encoding header for the encoding methods it supports.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
@@ -25,13 +30,21 @@ class DecoderPlugin implements Plugin
     private $useContentEncoding;
 
     /**
-     * @param bool $useContentEncoding Whether this plugin decode stream with value in the Content-Encoding header (default to true).
+     * Available options for $config are:
+     *  - use_content_encoding: Whether this plugin should look at the Content-Encoding header first or only at the Transfer-Encoding (defaults to true).
      *
-     * If set to false only the Transfer-Encoding header will be used.
+     * @param array $config
      */
-    public function __construct($useContentEncoding = true)
+    public function __construct(array $config = [])
     {
-        $this->useContentEncoding = $useContentEncoding;
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([
+            'use_content_encoding' => true,
+        ]);
+        $resolver->setAllowedTypes('use_content_encoding', 'bool');
+        $options = $resolver->resolve($config);
+
+        $this->useContentEncoding = $options['use_content_encoding'];
     }
 
     /**
@@ -39,11 +52,13 @@ class DecoderPlugin implements Plugin
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {
-        $request = $request->withHeader('TE', ['gzip', 'deflate', 'compress', 'chunked']);
+        $encodings = extension_loaded('zlib') ? ['gzip', 'deflate', 'compress'] : [];
 
-        if ($this->useContentEncoding) {
-            $request = $request->withHeader('Accept-Encoding', ['gzip', 'deflate', 'compress']);
+        if ($this->useContentEncoding && count($encodings)) {
+            $request = $request->withHeader('Accept-Encoding', $encodings);
         }
+        $encodings[] = 'chunked';
+        $request = $request->withHeader('TE', $encodings);
 
         return $next($request)->then(function (ResponseInterface $response) {
             return $this->decodeResponse($response);
