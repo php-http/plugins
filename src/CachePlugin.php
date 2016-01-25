@@ -32,7 +32,7 @@ class CachePlugin implements Plugin
     private $config;
 
     /**
-     * Available options are
+     * Available options for $config are
      *  - respect_cache_headers: Whether to look at the cache directives or ignore them.
      *  - default_ttl: If we do not respect cache headers or can't calculate a good ttl, use this value.
      *
