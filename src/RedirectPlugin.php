@@ -99,11 +99,11 @@ class RedirectPlugin implements Plugin
     protected $circularDetection = [];
 
     /**
-     * Available options for $config are:
-     *  - preserve_header: bool|string[] True keeps all headers, false remove all of them, an array is interpreted as a list of header names to keep.
-     *  - use_default_for_multiple: Whether the location header must be directly used for a multiple redirection status code (300).
+     * @param array $config {
      *
-     * @param array $config
+     *     @var bool|string[] $preserve_header True keeps all headers, false remove all of them, an array is interpreted as a list of header names to keep.
+     *     @var bool $use_default_for_multiple Whether the location header must be directly used for a multiple redirection status code (300).
+     * }
      */
     public function __construct(array $config = [])
     {
