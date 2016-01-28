@@ -30,10 +30,10 @@ class DecoderPlugin implements Plugin
     private $useContentEncoding;
 
     /**
-     * Available options for $config are:
-     *  - use_content_encoding: Whether this plugin should look at the Content-Encoding header first or only at the Transfer-Encoding (defaults to true).
+     * @param array $config {
      *
-     * @param array $config
+     *    @var bool $use_content_encoding Whether this plugin should look at the Content-Encoding header first or only at the Transfer-Encoding (defaults to true).
+     * }
      */
     public function __construct(array $config = [])
     {

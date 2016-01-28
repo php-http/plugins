@@ -32,13 +32,13 @@ class CachePlugin implements Plugin
     private $config;
 
     /**
-     * Available options for $config are
-     *  - respect_cache_headers: Whether to look at the cache directives or ignore them.
-     *  - default_ttl: If we do not respect cache headers or can't calculate a good ttl, use this value.
-     *
      * @param CacheItemPoolInterface $pool
      * @param StreamFactory          $streamFactory
-     * @param array                  $config
+     * @param array                  $config        {
+     *
+     *     @var bool $respect_cache_headers Whether to look at the cache directives or ignore them.
+     *     @var int $default_ttl If we do not respect cache headers or can't calculate a good ttl, use this value.
+     * }
      */
     public function __construct(CacheItemPoolInterface $pool, StreamFactory $streamFactory, array $config = [])
     {

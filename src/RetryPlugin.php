@@ -31,10 +31,10 @@ class RetryPlugin implements Plugin
     private $retryStorage = [];
 
     /**
-     * Available options for $config are:
-     *  - retries: Number of retries to attempt if an exception occurs before letting the exception bubble up.
+     * @param array $config {
      *
-     * @param array $config
+     *     @var int $retries Number of retries to attempt if an exception occurs before letting the exception bubble up.
+     * }
      */
     public function __construct(array $config = [])
     {
