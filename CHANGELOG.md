@@ -1,5 +1,10 @@
 # Change Log
 
+### Added
+
+ - New Header plugins (see the documentation)
+ - New AddHost plugin (add or replace a host in a request)
+
 ### Changed
 
 - Using array options for DecoderPlugin, RedirectPlugin and RetryPlugin
