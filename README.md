@@ -1,3 +1,7 @@
+> DEPRECATED
+> As of version 1.1 this package is deprecated. Most of the plugins are merged into `php-http/client-common`.
+> The following plugins are in separate packages: logger, cache, stopwatch
+
 # Plugins for Httplug
 
 [![Latest Version](https://img.shields.io/github/release/php-http/plugins.svg?style=flat-square)](https://github.com/php-http/plugins/releases)
