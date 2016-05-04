@@ -2,6 +2,8 @@
 
 namespace Http\Client\Plugin;
 
+@trigger_error('The '.__NAMESPACE__.'\CookiePlugin class is deprecated since version 1.1 and will be removed in 2.0. Use Http\Client\Common\Plugin\CookiePlugin instead.', E_USER_DEPRECATED);
+
 use Http\Client\Exception\TransferException;
 use Http\Message\Cookie;
 use Http\Message\CookieJar;
@@ -12,6 +14,8 @@ use Psr\Http\Message\ResponseInterface;
  * Handle request cookies.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
+ *
+ * @deprecated since since version 1.1, and will be removed in 2.0. Use {@link \Http\Client\Common\Plugin\CookiePlugin} instead.
  */
 class CookiePlugin implements Plugin
 {

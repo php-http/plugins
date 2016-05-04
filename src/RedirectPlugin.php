@@ -2,6 +2,8 @@
 
 namespace Http\Client\Plugin;
 
+@trigger_error('The '.__NAMESPACE__.'\RedirectPlugin class is deprecated since version 1.1 and will be removed in 2.0. Use Http\Client\Common\Plugin\RedirectPlugin instead.', E_USER_DEPRECATED);
+
 use Http\Client\Exception\HttpException;
 use Http\Client\Plugin\Exception\CircularRedirectionException;
 use Http\Client\Plugin\Exception\MultipleRedirectionException;
@@ -15,6 +17,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * Follow redirections.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
+ *
+ * @deprecated since since version 1.1, and will be removed in 2.0. Use {@link \Http\Client\Common\Plugin\RedirectPlugin} instead.
  */
 class RedirectPlugin implements Plugin
 {

@@ -2,43 +2,26 @@
 
 namespace Http\Client\Plugin;
 
-use Http\Client\Common\EmulatedHttpAsyncClient;
-use Http\Client\Exception;
+@trigger_error('The '.__NAMESPACE__.'\PluginClient class is deprecated since version 1.1 and will be removed in 2.0. Use Http\Client\Common\PluginClient instead.', E_USER_DEPRECATED);
+
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
 use Http\Client\Plugin\Exception\LoopException;
-use Http\Promise\FulfilledPromise;
-use Http\Promise\RejectedPromise;
 use Psr\Http\Message\RequestInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * The client managing plugins and providing a decorator around HTTP Clients.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
+ *
+ * @deprecated since since version 1.1, and will be removed in 2.0. Use {@link \Http\Client\Common\PluginClient} instead.
  */
 final class PluginClient implements HttpClient, HttpAsyncClient
 {
     /**
-     * An HTTP async client.
-     *
-     * @var HttpAsyncClient
+     * @var \Http\Client\Common\PluginClient
      */
-    private $client;
-
-    /**
-     * The plugin chain.
-     *
-     * @var Plugin[]
-     */
-    private $plugins;
-
-    /**
-     * A list of options.
-     *
-     * @var array
-     */
-    private $options;
+    private $pluginClient;
 
     /**
      * @param HttpClient|HttpAsyncClient $client
@@ -52,16 +35,7 @@ final class PluginClient implements HttpClient, HttpAsyncClient
      */
     public function __construct($client, array $plugins = [], array $options = [])
     {
-        if ($client instanceof HttpAsyncClient) {
-            $this->client = $client;
-        } elseif ($client instanceof HttpClient) {
-            $this->client = new EmulatedHttpAsyncClient($client);
-        } else {
-            throw new \RuntimeException('Client must be an instance of Http\\Client\\HttpClient or Http\\Client\\HttpAsyncClient');
-        }
-
-        $this->plugins = $plugins;
-        $this->options = $this->configure($options);
+        $this->pluginClient = new \Http\Client\Common\PluginClient($client, $plugins, $options);
     }
 
     /**
@@ -69,22 +43,11 @@ final class PluginClient implements HttpClient, HttpAsyncClient
      */
     public function sendRequest(RequestInterface $request)
     {
-        // If we don't have an http client, use the async call
-        if (!($this->client instanceof HttpClient)) {
-            return $this->sendAsyncRequest($request)->wait();
+        try {
+            return $this->pluginClient->sendRequest($request);
+        } catch (\Http\Client\Common\Exception\LoopException $e) {
+            throw new LoopException($e->getMessage(), $e->getRequest(), $e);
         }
-
-        // Else we want to use the synchronous call of the underlying client, and not the async one in the case
-        // we have both an async and sync call
-        $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) {
-            try {
-                return new FulfilledPromise($this->client->sendRequest($request));
-            } catch (Exception $exception) {
-                return new RejectedPromise($exception);
-            }
-        });
-
-        return $pluginChain($request)->wait();
     }
 
     /**
@@ -92,61 +55,10 @@ final class PluginClient implements HttpClient, HttpAsyncClient
      */
     public function sendAsyncRequest(RequestInterface $request)
     {
-        $pluginChain = $this->createPluginChain($this->plugins, function (RequestInterface $request) {
-            return $this->client->sendAsyncRequest($request);
-        });
-
-        return $pluginChain($request);
-    }
-
-    /**
-     * Configure the plugin client.
-     *
-     * @param array $options
-     *
-     * @return array
-     */
-    private function configure(array $options = [])
-    {
-        $resolver = new OptionsResolver();
-        $resolver->setDefaults([
-            'max_restarts' => 10,
-        ]);
-
-        return $resolver->resolve($options);
-    }
-
-    /**
-     * Create the plugin chain.
-     *
-     * @param Plugin[] $pluginList     A list of plugins
-     * @param callable $clientCallable Callable making the HTTP call
-     *
-     * @return callable
-     */
-    private function createPluginChain($pluginList, callable $clientCallable)
-    {
-        $firstCallable = $lastCallable = $clientCallable;
-
-        while ($plugin = array_pop($pluginList)) {
-            $lastCallable = function (RequestInterface $request) use ($plugin, $lastCallable, &$firstCallable) {
-                return $plugin->handleRequest($request, $lastCallable, $firstCallable);
-            };
-
-            $firstCallable = $lastCallable;
+        try {
+            return $this->pluginClient->sendAsyncRequest($request);
+        } catch (\Http\Client\Common\Exception\LoopException $e) {
+            throw new LoopException($e->getMessage(), $e->getRequest(), $e);
         }
-
-        $firstCalls = 0;
-        $firstCallable = function (RequestInterface $request) use ($lastCallable, &$firstCalls) {
-            if ($firstCalls > $this->options['max_restarts']) {
-                throw new LoopException('Too many restarts in plugin client', $request);
-            }
-
-            ++$firstCalls;
-
-            return $lastCallable($request);
-        };
-
-        return $firstCallable;
     }
 }
