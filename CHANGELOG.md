@@ -1,5 +1,16 @@
 # Change Log
 
+
+## Unreleased
+
+### Deprecated
+
+- Core plugins and plugin client, moved to [client-common](https://github.com/php-http/client-common)
+- Logger plugin, moved to [logger-plugin](https://github.com/php-http/logger-plugin)
+- Cache plugin, moved to [cache-plugin](https://github.com/php-http/cache-plugin)
+- Stopwatch plugin, moved to [stopwatch-plugin](https://github.com/php-http/stopwatch-plugin)
+
+
 ## 1.0.1 - 2016-01-29
 
 ### Changed

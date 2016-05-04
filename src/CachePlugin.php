@@ -2,6 +2,8 @@
 
 namespace Http\Client\Plugin;
 
+@trigger_error('The '.__NAMESPACE__.'\CachePlugin class is deprecated since version 1.1 and will be removed in 2.0. Use Http\Client\Common\Plugin\CachePlugin instead.', E_USER_DEPRECATED);
+
 use Http\Message\StreamFactory;
 use Http\Promise\FulfilledPromise;
 use Psr\Cache\CacheItemPoolInterface;
@@ -13,6 +15,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * Allow for caching a response.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
+ *
+ * @deprecated since since version 1.1, and will be removed in 2.0. Use {@link \Http\Client\Common\Plugin\CachePlugin} instead.
  */
 class CachePlugin implements Plugin
 {

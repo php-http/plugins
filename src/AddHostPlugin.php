@@ -2,6 +2,8 @@
 
 namespace Http\Client\Plugin;
 
+@trigger_error('The '.__NAMESPACE__.'\AddHostPlugin class is deprecated since version 1.1 and will be removed in 2.0. Use Http\Client\Common\Plugin\AddHostPlugin instead.', E_USER_DEPRECATED);
+
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -10,6 +12,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * Add schema and host to a request. Can be set to overwrite the schema and host if desired.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
+ *
+ * @deprecated since since version 1.1, and will be removed in 2.0. Use {@link \Http\Client\Common\Plugin\AddHostPlugin} instead.
  */
 class AddHostPlugin implements Plugin
 {

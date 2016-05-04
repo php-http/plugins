@@ -2,6 +2,8 @@
 
 namespace Http\Client\Plugin;
 
+@trigger_error('The '.__NAMESPACE__.'\Journal class is deprecated since version 1.1 and will be removed in 2.0. Use Http\Client\Common\Plugin\Journal instead.', E_USER_DEPRECATED);
+
 use Http\Client\Exception;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -10,6 +12,8 @@ use Psr\Http\Message\ResponseInterface;
  * Records history of http calls.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
+ *
+ * @deprecated since since version 1.1, and will be removed in 2.0. Use {@link \Http\Client\Common\Plugin\Journal} instead.
  */
 interface Journal
 {

@@ -2,8 +2,7 @@
 
 namespace Http\Client\Plugin;
 
-use Http\Promise\Promise;
-use Psr\Http\Message\RequestInterface;
+@trigger_error('The '.__NAMESPACE__.'\Plugin class is deprecated since version 1.1 and will be removed in 2.0. Use Http\Client\Common\Plugin instead.', E_USER_DEPRECATED);
 
 /**
  * A plugin is a middleware to transform the request and/or the response.
@@ -14,17 +13,9 @@ use Psr\Http\Message\RequestInterface;
  *  - restart the request
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
+ *
+ * @deprecated since since version 1.1, and will be removed in 2.0. Use {@link \Http\Client\Common\Plugin} instead.
  */
-interface Plugin
+interface Plugin extends \Http\Client\Common\Plugin
 {
-    /**
-     * Handle the request and return the response coming from the next callable.
-     *
-     * @param RequestInterface $request
-     * @param callable         $next    Next middleware in the chain, the request is passed as the first argument
-     * @param callable         $first   First middleware in the chain, used to to restart a request
-     *
-     * @return Promise
-     */
-    public function handleRequest(RequestInterface $request, callable $next, callable $first);
 }
