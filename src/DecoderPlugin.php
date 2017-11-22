@@ -129,19 +129,19 @@ class DecoderPlugin implements Plugin
      */
     private function decorateStream($encoding, StreamInterface $stream)
     {
-        if (strtolower($encoding) == 'chunked') {
+        if ('chunked' == strtolower($encoding)) {
             return new DechunkStream($stream);
         }
 
-        if (strtolower($encoding) == 'compress') {
+        if ('compress' == strtolower($encoding)) {
             return new DecompressStream($stream);
         }
 
-        if (strtolower($encoding) == 'deflate') {
+        if ('deflate' == strtolower($encoding)) {
             return new InflateStream($stream);
         }
 
-        if (strtolower($encoding) == 'gzip') {
+        if ('gzip' == strtolower($encoding)) {
             return new GzipDecodeStream($stream);
         }
 
