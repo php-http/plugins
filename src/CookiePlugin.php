@@ -52,7 +52,7 @@ class CookiePlugin implements Plugin
                 continue;
             }
 
-            if ($cookie->isSecure() && ($request->getUri()->getScheme() !== 'https')) {
+            if ($cookie->isSecure() && ('https' !== $request->getUri()->getScheme())) {
                 continue;
             }
 
@@ -133,22 +133,27 @@ class CookiePlugin implements Plugin
 
                 case 'max-age':
                     $maxAge = (int) $value;
+
                     break;
 
                 case 'domain':
                     $domain = $value;
+
                     break;
 
                 case 'path':
                     $path = $value;
+
                     break;
 
                 case 'secure':
                     $secure = true;
+
                     break;
 
                 case 'httponly':
                     $httpOnly = true;
+
                     break;
             }
         }

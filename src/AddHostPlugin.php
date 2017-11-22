@@ -36,7 +36,7 @@ class AddHostPlugin implements Plugin
      */
     public function __construct(UriInterface $host, array $config = [])
     {
-        if ($host->getHost() === '') {
+        if ('' === $host->getHost()) {
             throw new \LogicException('Host can not be empty');
         }
 
@@ -54,7 +54,7 @@ class AddHostPlugin implements Plugin
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {
-        if ($this->replace || $request->getUri()->getHost() === '') {
+        if ($this->replace || '' === $request->getUri()->getHost()) {
             $uri = $request->getUri()->withHost($this->host->getHost());
             $uri = $uri->withScheme($this->host->getScheme());
 

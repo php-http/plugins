@@ -40,7 +40,7 @@ class CachePlugin implements Plugin
      * @param StreamFactory          $streamFactory
      * @param array                  $config        {
      *
-     *     @var bool $respect_cache_headers Whether to look at the cache directives or ignore them.
+     *     @var bool $respect_cache_headers whether to look at the cache directives or ignore them
      *     @var int $default_ttl If we do not respect cache headers or can't calculate a good ttl, use this value.
      * }
      */
@@ -62,7 +62,7 @@ class CachePlugin implements Plugin
         $method = strtoupper($request->getMethod());
 
         // if the request not is cachable, move to $next
-        if ($method !== 'GET' && $method !== 'HEAD') {
+        if ('GET' !== $method && 'HEAD' !== $method) {
             return $next($request);
         }
 
@@ -126,14 +126,13 @@ class CachePlugin implements Plugin
      * @param ResponseInterface $response
      * @param string            $name     The field of Cache-Control to fetch
      *
-     * @return bool|string The value of the directive, true if directive without value, false if directive not present.
+     * @return bool|string the value of the directive, true if directive without value, false if directive not present
      */
     private function getCacheControlDirective(ResponseInterface $response, $name)
     {
         $headers = $response->getHeader('Cache-Control');
         foreach ($headers as $header) {
             if (preg_match(sprintf('|%s=?([0-9]+)?|i', $name), $header, $matches)) {
-
                 // return the value for $name if it exists
                 if (isset($matches[1])) {
                     return $matches[1];
