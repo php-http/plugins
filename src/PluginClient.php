@@ -28,7 +28,7 @@ final class PluginClient implements HttpClient, HttpAsyncClient
      * @param Plugin[]                   $plugins
      * @param array                      $options {
      *
-     *     @var int $max_restarts
+     *     @var int $max_restarts Number of times plugins may initiate a restart of the plugin chain. Defaults to 10.
      * }
      *
      * @throws \RuntimeException if client is not an instance of HttpClient or HttpAsyncClient
