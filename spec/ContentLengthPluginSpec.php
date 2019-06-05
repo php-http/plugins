@@ -28,10 +28,6 @@ class ContentLengthPluginSpec extends ObjectBehavior
 
     function it_streams_chunked_if_no_size(RequestInterface $request, StreamInterface $stream)
     {
-        if(defined('HHVM_VERSION')) {
-            throw new SkippingException('Skipping test on hhvm, as there is no chunk encoding on hhvm');
-        }
-
         $request->hasHeader('Content-Length')->shouldBeCalled()->willReturn(false);
         $request->getBody()->shouldBeCalled()->willReturn($stream);
 
