@@ -24,10 +24,6 @@ class DecoderPluginSpec extends ObjectBehavior
 
     function it_decodes(RequestInterface $request, ResponseInterface $response, StreamInterface $stream)
     {
-        if(defined('HHVM_VERSION')) {
-            throw new SkippingException('Skipping test on hhvm, as there is no chunk encoding on hhvm');
-        }
-
         $request->withHeader('TE', ['gzip', 'deflate', 'compress', 'chunked'])->shouldBeCalled()->willReturn($request);
         $request->withHeader('Accept-Encoding', ['gzip', 'deflate', 'compress'])->shouldBeCalled()->willReturn($request);
         $next = function () use($response) {
