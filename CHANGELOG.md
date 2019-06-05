@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.2.0 - 2019-06-05
+
+Maintenance release with some cleanups in case anyone is still using this.
 
 ## 1.1.0 - 2016-05-05
 
