@@ -39,8 +39,8 @@ class CachePluginSpec extends ObjectBehavior
         $request->getUri()->willReturn('/');
         $response->getStatusCode()->willReturn(200);
         $response->getBody()->willReturn($stream);
-        $response->getHeader('Cache-Control')->willReturn(array());
-        $response->getHeader('Expires')->willReturn(array());
+        $response->getHeader('Cache-Control')->willReturn([]);
+        $response->getHeader('Expires')->willReturn([]);
 
         $pool->getItem('e3b717d5883a45ef9493d009741f7c64')->shouldBeCalled()->willReturn($item);
         $item->isHit()->willReturn(false);
@@ -60,8 +60,8 @@ class CachePluginSpec extends ObjectBehavior
         $request->getMethod()->willReturn('GET');
         $request->getUri()->willReturn('/');
         $response->getStatusCode()->willReturn(400);
-        $response->getHeader('Cache-Control')->willReturn(array());
-        $response->getHeader('Expires')->willReturn(array());
+        $response->getHeader('Cache-Control')->willReturn([]);
+        $response->getHeader('Expires')->willReturn([]);
 
         $pool->getItem('e3b717d5883a45ef9493d009741f7c64')->shouldBeCalled()->willReturn($item);
         $item->isHit()->willReturn(false);
@@ -97,9 +97,9 @@ class CachePluginSpec extends ObjectBehavior
         $request->getUri()->willReturn('/');
         $response->getStatusCode()->willReturn(200);
         $response->getBody()->willReturn($stream);
-        $response->getHeader('Cache-Control')->willReturn(array('max-age=40'));
-        $response->getHeader('Age')->willReturn(array('15'));
-        $response->getHeader('Expires')->willReturn(array());
+        $response->getHeader('Cache-Control')->willReturn(['max-age=40']);
+        $response->getHeader('Age')->willReturn(['15']);
+        $response->getHeader('Expires')->willReturn([]);
 
         $pool->getItem('e3b717d5883a45ef9493d009741f7c64')->shouldBeCalled()->willReturn($item);
         $item->isHit()->willReturn(false);

@@ -33,7 +33,7 @@ class StopwatchPluginSpec extends ObjectBehavior
         $request->getRequestTarget()->willReturn('/');
 
         $stopwatch->start('GET /', 'php_http.request')->shouldBeCalled();
-        $stopwatch->stop('GET /', 'php_http.request')->shouldBeCalled();
+        $stopwatch->stop('GET /')->shouldBeCalled();
 
         $next = function (RequestInterface $request) use ($response) {
             return new FulfilledPromise($response->getWrappedObject());
@@ -48,7 +48,7 @@ class StopwatchPluginSpec extends ObjectBehavior
         $request->getRequestTarget()->willReturn('/');
 
         $stopwatch->start('GET /', 'php_http.request')->shouldBeCalled();
-        $stopwatch->stop('GET /', 'php_http.request')->shouldBeCalled();
+        $stopwatch->stop('GET /')->shouldBeCalled();
 
         $next = function (RequestInterface $request) {
             return new RejectedPromise(new NetworkException('', $request));

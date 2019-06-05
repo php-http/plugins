@@ -12,7 +12,9 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Allow for caching a response.
+ * Allow for caching a response with a PSR-6 compatible caching engine.
+ *
+ * It can follow the RFC-7234 caching specification or use a fixed cache lifetime.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
  *
@@ -40,8 +42,8 @@ class CachePlugin implements Plugin
      * @param StreamFactory          $streamFactory
      * @param array                  $config        {
      *
-     *     @var bool $respect_cache_headers whether to look at the cache directives or ignore them
-     *     @var int $default_ttl If we do not respect cache headers or can't calculate a good ttl, use this value.
+     *     @var bool $respect_cache_headers Whether to look at the cache directives or ignore them
+     *     @var int $default_ttl If we do not respect cache headers or the headers specify cache control, use this value
      * }
      */
     public function __construct(CacheItemPoolInterface $pool, StreamFactory $streamFactory, array $config = [])
@@ -61,18 +63,17 @@ class CachePlugin implements Plugin
     {
         $method = strtoupper($request->getMethod());
 
-        // if the request not is cachable, move to $next
+        // if the request is not cacheable, move to $next
         if ('GET' !== $method && 'HEAD' !== $method) {
             return $next($request);
         }
 
-        // If we can cache the request
         $key = $this->createCacheKey($request);
         $cacheItem = $this->pool->getItem($key);
 
         if ($cacheItem->isHit()) {
-            // return cached response
             $data = $cacheItem->get();
+            /** @var ResponseInterface $response */
             $response = $data['response'];
             $response = $response->withBody($this->streamFactory->createStream($data['body']));
 
@@ -82,7 +83,7 @@ class CachePlugin implements Plugin
         return $next($request)->then(function (ResponseInterface $response) use ($cacheItem) {
             if ($this->isCacheable($response)) {
                 $bodyStream = $response->getBody();
-                $body = $bodyStream->__toString();
+                $body = (string) $bodyStream;
                 if ($bodyStream->isSeekable()) {
                     $bodyStream->rewind();
                 } else {

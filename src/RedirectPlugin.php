@@ -14,7 +14,7 @@ use Psr\Http\Message\UriInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Follow redirections.
+ * Follow redirect responses from the server.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  *
